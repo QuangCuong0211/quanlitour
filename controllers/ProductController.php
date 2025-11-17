@@ -5,12 +5,11 @@ class ProductController
 
     public function __construct()
     {
+        // Giả sử ProductModel tự kết nối DB bên trong
         $this->modelProduct = new ProductModel();
     }
 
-    // =======================
-    // 1. TRANG CHỦ
-    // =======================
+    // Trang chủ
     public function Home()
     {
         $title = "Đây là trang chủ nhé hahaa";
@@ -19,17 +18,11 @@ class ProductController
         require_once './views/trangchu.php';
     }
 
-    // =======================
-    // 2. TRANG ADMIN
-    // =======================
+    // Trang admin
     public function Admin()
     {
         require_once './views/admin.php';
     }
-
-    // =======================
-    // 3. CRUD TOUR
-    // =======================
 
     // Danh sách tour
     public function tourList()
@@ -47,32 +40,49 @@ class ProductController
     // Lưu tour mới
     public function tourSave()
     {
-        if (!isset($_POST['name']) || !isset($_POST['desc']) || !isset($_POST['price'])) {
-            die("Thiếu dữ liệu!");
+        if (empty($_POST['name']) || empty($_POST['desc']) || empty($_POST['price'])) {
+            header("Location: ?act=tour-add&error=" . urlencode("Thiếu dữ liệu!"));
+            exit();
         }
 
         $name  = trim($_POST['name']);
         $desc  = trim($_POST['desc']);
         $price = floatval($_POST['price']);
 
-        $this->modelProduct->insertTour($name, $desc, $price);
+        if ($price < 0) {
+            header("Location: ?act=tour-add&error=" . urlencode("Giá tour không hợp lệ!"));
+            exit();
+        }
 
-        header("Location: ?act=tour-list");
-        exit;
+        $ok = $this->modelProduct->insertTour($name, $desc, $price);
+
+        if ($ok) {
+            header("Location: ?act=tour-list&msg=" . urlencode("Thêm tour thành công!"));
+        } else {
+            header("Location: ?act=tour-add&error=" . urlencode("Thêm tour thất bại!"));
+        }
+        exit();
     }
 
     // Form sửa tour
     public function tourEdit()
     {
         if (!isset($_GET['id'])) {
-            die("Thiếu ID tour!");
+            header("Location: ?act=tour-list&error=" . urlencode("Thiếu ID tour!"));
+            exit;
         }
 
         $id = intval($_GET['id']);
+        if ($id <= 0) {
+            header("Location: ?act=tour-list&error=" . urlencode("ID tour không hợp lệ!"));
+            exit;
+        }
+
         $tour = $this->modelProduct->getTourById($id);
 
         if (!$tour) {
-            die("Tour không tồn tại!");
+            header("Location: ?act=tour-list&error=" . urlencode("Tour không tồn tại!"));
+            exit;
         }
 
         require_once './views/tour/edit.php';
@@ -81,18 +91,56 @@ class ProductController
     // Cập nhật tour
     public function tourUpdate()
     {
-        if (!isset($_POST['id'])) {
-            die("Thiếu ID tour!");
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: ?act=tour-list");
+            exit;
         }
 
-        $id    = intval($_POST['id']);
-        $name  = $_POST['name'];
-        $desc  = $_POST['desc'];
-        $price = floatval($_POST['price']);
+        $id    = intval($_POST['id'] ?? 0);
+        $name  = trim($_POST['name'] ?? '');
+        $desc  = trim($_POST['desc'] ?? '');
+        $price = floatval($_POST['price'] ?? 0);
 
-        $this->modelProduct->updateTour($id, $name, $desc, $price);
+        if ($id <= 0) {
+            header("Location: ?act=tour-list&error=" . urlencode('ID không hợp lệ!'));
+            exit;
+        }
 
-        header("Location: ?act=tour-list");
+        if ($name === '' || $desc === '' || $price < 0) {
+            header("Location: ?act=tour-edit&id={$id}&error=" . urlencode('Dữ liệu không hợp lệ!'));
+            exit;
+        }
+
+        // Model trả về mảng chi tiết
+        $res = $this->modelProduct->updateTour($id, $name, $desc, $price);
+
+        // Nếu lỡ model trả về boolean như cũ, vẫn xử lý được
+        if (!is_array($res)) {
+            if ($res) {
+                header("Location: ?act=tour-edit&id={$id}&msg=" . urlencode('Cập nhật tour thành công!'));
+            } else {
+                header("Location: ?act=tour-edit&id={$id}&error=" . urlencode('Cập nhật tour thất bại!'));
+            }
+            exit;
+        }
+
+        // Dùng status chi tiết
+        switch ($res['status'] ?? '') {
+            case 'updated':
+                header("Location: ?act=tour-edit&id={$id}&msg=" . urlencode('Cập nhật tour thành công!'));
+                break;
+
+            case 'nochange':
+                header("Location: ?act=tour-edit&id={$id}&msg=" . urlencode('Không có gì thay đổi (dữ liệu giống trước).'));
+                break;
+
+            case 'error':
+            default:
+                $errMsg = isset($res['message']) ? $res['message'] : 'Cập nhật tour thất bại!';
+                header("Location: ?act=tour-edit&id={$id}&error=" . urlencode($errMsg));
+                break;
+        }
+
         exit;
     }
 
@@ -100,13 +148,23 @@ class ProductController
     public function tourDelete()
     {
         if (!isset($_GET['id'])) {
-            die("Thiếu ID tour!");
+            header("Location: ?act=tour-list&error=" . urlencode("Thiếu ID tour!"));
+            exit;
         }
 
         $id = intval($_GET['id']);
-        $this->modelProduct->deleteTour($id);
+        if ($id <= 0) {
+            header("Location: ?act=tour-list&error=" . urlencode("ID tour không hợp lệ!"));
+            exit;
+        }
 
-        header("Location: ?act=tour-list");
-        exit;
+        $ok = $this->modelProduct->deleteTour($id);
+
+        if ($ok) {
+            header("Location: ?act=tour-list&msg=" . urlencode("Xóa tour thành công!"));
+        } else {
+            header("Location: ?act=tour-list&error=" . urlencode("Xóa tour thất bại!"));
+        }
+        exit();
     }
 }
