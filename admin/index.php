@@ -5,8 +5,11 @@
         header("Location: login.php");
         exit();
     }
+    require_once "../commons/env.php";
+    require_once "../commons/function.php";
     require_once "models_admin/pdo_library.php";
     require_once "models_admin/BaseModel.php";
+    require_once "models_admin/UserModel.php";
     require_once "models_admin/CategoryModel.php";
     require_once "models_admin/ProductModel.php";
     require_once "models_admin/CustomerModel.php";
@@ -157,6 +160,16 @@
                 require_once "kho-hang/add.php";         
                 break;
             
+            // Quản lý người dùng
+            case 'danh-sach-nguoi-dung':
+                require_once "nguoidung/list.php";
+                break;
+            case 'them-nguoi-dung':
+                require_once "nguoidung/add.php";
+                break;
+            case 'sua-nguoi-dung':
+                require_once "nguoidung/edit.php";
+                break;
 
             default:
                 require_once "components/404.php";
