@@ -41,3 +41,49 @@ function deleteFile($file){
         unlink($pathDelete); // Hàm unlink dùng để xóa file
     }
 }
+
+// ---------- PDO helper functions (sử dụng cho models) ----------
+function pdo_query($sql) {
+    $params = array_slice(func_get_args(), 1);
+    try {
+        $conn = connectDB();
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    } catch (PDOException $e) {
+        echo "PDO Query Error: " . $e->getMessage();
+        return [];
+    }
+}
+
+function pdo_query_one($sql) {
+    $params = array_slice(func_get_args(), 1);
+    try {
+        $conn = connectDB();
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetch();
+    } catch (PDOException $e) {
+        echo "PDO Query One Error: " . $e->getMessage();
+        return null;
+    }
+}
+
+function pdo_execute($sql) {
+    $params = array_slice(func_get_args(), 1);
+    try {
+        $conn = connectDB();
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
+
+        // Nếu là INSERT, trả về lastInsertId, còn lại trả về số dòng ảnh hưởng
+        $firstWord = strtolower(trim(explode(' ', trim($sql))[0]));
+        if ($firstWord === 'insert') {
+            return $conn->lastInsertId();
+        }
+        return $stmt->rowCount();
+    } catch (PDOException $e) {
+        echo "PDO Execute Error: " . $e->getMessage();
+        return false;
+    }
+}
