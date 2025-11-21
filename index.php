@@ -9,17 +9,23 @@ require_once './commons/function.php';
 require_once './models/TourModel.php';
 require_once './models/BookingModel.php';
 require_once './models/CategoryModel.php';
+require_once './models/DepartureModel.php';
+require_once './models/CustomerModel.php';
 
 // Controllers
 require_once './controllers/TourController.php';
 require_once './controllers/BookingController.php';
 require_once './controllers/CategoryController.php';
+require_once './controllers/DepartureController.php';
+require_once './controllers/CustomerController.php';
 
 $act = $_GET['act'] ?? '/';
 
 $tourController = new TourController();
 $bookingController = new BookingController();
 $categoryController = new CategoryController();
+$departureController = new DepartureController();
+$customerController = new CustomerController();
 
 $routes = [
     '/'            => ['controller' => $tourController, 'method' => 'Home'],
@@ -45,6 +51,20 @@ $routes = [
     'category-edit'   => ['controller' => $categoryController, 'method' => 'categoryEdit'],
     'category-update' => ['controller' => $categoryController, 'method' => 'categoryUpdate'],
     'category-delete' => ['controller' => $categoryController, 'method' => 'categoryDelete'],
+
+    'departure-list'   => ['controller' => $departureController, 'method' => 'departureList'],
+    'departure-add'    => ['controller' => $departureController, 'method' => 'departureAdd'],
+    'departure-save'   => ['controller' => $departureController, 'method' => 'departureSave'],
+    'departure-edit'   => ['controller' => $departureController, 'method' => 'departureEdit'],
+    'departure-update' => ['controller' => $departureController, 'method' => 'departureUpdate'],
+    'departure-delete' => ['controller' => $departureController, 'method' => 'departureDelete'],
+
+    'customer-list'   => ['controller' => $customerController, 'method' => 'customerList'],
+    'customer-add'    => ['controller' => $customerController, 'method' => 'customerAdd'],
+    'customer-save'   => ['controller' => $customerController, 'method' => 'customerSave'],
+    'customer-edit'   => ['controller' => $customerController, 'method' => 'customerEdit'],
+    'customer-update' => ['controller' => $customerController, 'method' => 'customerUpdate'],
+    'customer-delete' => ['controller' => $customerController, 'method' => 'customerDelete'],
 
 ];
 
