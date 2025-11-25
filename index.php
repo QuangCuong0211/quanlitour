@@ -40,6 +40,7 @@ $routes = [
 
     'booking-list'   => ['controller' => $bookingController, 'method' => 'index'],
     'booking-assign-guide' => ['controller' => $bookingController, 'method' => 'assignGuide'],
+    'booking-save-note'    => ['controller' => $bookingController, 'method' => 'saveAdminNote'],
     'booking-add'    => ['controller' => $bookingController, 'method' => 'create'],
     'booking-save'   => ['controller' => $bookingController, 'method' => 'store'],
     'booking-edit'   => ['controller' => $bookingController, 'method' => 'edit'],

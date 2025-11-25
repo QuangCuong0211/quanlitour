@@ -140,4 +140,25 @@ class BookingController
     header("Location: index.php?act=booking-list");
     exit;
 }
+public function saveAdminNote()
+{
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $booking_id = (int)($_POST['booking_id'] ?? 0);
+        $admin_note = trim($_POST['admin_note'] ?? '');
+
+        if ($booking_id > 0) {
+            pdo_execute(
+                "UPDATE bookings SET admin_note = ? WHERE id = ?",
+                $admin_note,
+                $booking_id
+            );
+            $_SESSION['success'] = "Đã lưu ghi chú admin!";
+        } else {
+            $_SESSION['error'] = "Không tìm thấy booking!";
+        }
+    }
+
+    header("Location: index.php?act=booking-list");
+    exit;
+}
 }
