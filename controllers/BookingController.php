@@ -116,4 +116,28 @@ class BookingController
         header("Location: ?act=booking-list");
         exit();
     }
+    public function assignGuide()
+{
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $booking_id = (int)($_POST['booking_id'] ?? 0);
+        $guide_id   = !empty($_POST['guide_id']) ? (int)$_POST['guide_id'] : null;
+        $note       = trim($_POST['guide_note'] ?? '');
+
+        if ($booking_id > 0) {
+            pdo_execute(
+                "UPDATE bookings SET guide_id = ?, guide_note = ? WHERE id = ?",
+                $guide_id,
+                $note,
+                $booking_id
+            );
+            $_SESSION['success'] = "Phân bổ hướng dẫn viên thành công!";
+        } else {
+            $_SESSION['error'] = "Không tìm thấy booking!";
+        }
+    }
+
+    // Quay lại trang danh sách booking
+    header("Location: index.php?act=booking-list");
+    exit;
+}
 }
