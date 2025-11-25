@@ -39,11 +39,15 @@ $routes = [
     'tour-delete'  => ['controller' => $tourController, 'method' => 'tourDelete'],
 
     'booking-list'   => ['controller' => $bookingController, 'method' => 'index'],
+    'booking-assign-guide' => ['controller' => $bookingController, 'method' => 'assignGuide'],
+    'booking-save-note'    => ['controller' => $bookingController, 'method' => 'saveAdminNote'],
     'booking-add'    => ['controller' => $bookingController, 'method' => 'create'],
     'booking-save'   => ['controller' => $bookingController, 'method' => 'store'],
     'booking-edit'   => ['controller' => $bookingController, 'method' => 'edit'],
     'booking-update' => ['controller' => $bookingController, 'method' => 'update'],
     'booking-delete' => ['controller' => $bookingController, 'method' => 'delete'],
+    'booking-issues'     => ['controller' => $bookingController, 'method' => 'issues'],
+    'booking-save-issue' => ['controller' => $bookingController, 'method' => 'saveIssue'],
 
     'category-list'   => ['controller' => $categoryController, 'method' => 'categoryList'],
     'category-add'    => ['controller' => $categoryController, 'method' => 'categoryAdd'],
