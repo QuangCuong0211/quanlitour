@@ -46,6 +46,8 @@ $routes = [
     'booking-edit'   => ['controller' => $bookingController, 'method' => 'edit'],
     'booking-update' => ['controller' => $bookingController, 'method' => 'update'],
     'booking-delete' => ['controller' => $bookingController, 'method' => 'delete'],
+    'booking-issues'     => ['controller' => $bookingController, 'method' => 'issues'],
+    'booking-save-issue' => ['controller' => $bookingController, 'method' => 'saveIssue'],
 
     'category-list'   => ['controller' => $categoryController, 'method' => 'categoryList'],
     'category-add'    => ['controller' => $categoryController, 'method' => 'categoryAdd'],

@@ -111,6 +111,7 @@
 
                             <a href="?act=booking-edit&id=<?= $item['id']; ?>" class="btn btn-warning btn-sm">Sửa</a>
                             <a href="?act=booking-delete&id=<?= $item['id']; ?>" onclick="return confirm('Xóa thật không?')" class="btn btn-danger btn-sm">Xóa</a>
+                            <a href="?act=booking-issues&booking_id=<?= $item['id'] ?>" class="btn btn-danger btn-sm">Sự cố</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
