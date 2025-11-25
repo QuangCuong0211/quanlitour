@@ -5,7 +5,6 @@
     <title>Danh sách Booking</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-
     <style>
         body { background: #f3f4f6; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         .nowrap { white-space: nowrap; }
@@ -47,16 +46,14 @@
                 <th class="nowrap">Ngày về</th>
                 <th class="nowrap">Ghi chú khách</th>
                 <th class="nowrap">Hướng dẫn viên</th>
-                <th class="nowrap">Ghi chú Admin</th> <!-- CỘT MỚI -->
+                <th class="nowrap">Ghi chú Admin</th>
                 <th class="nowrap">Hành động</th>
             </tr>
             </thead>
-
             <tbody>
             <?php if (!empty($bookings)): ?>
                 <?php $stt = 1; foreach ($bookings as $item): ?>
                     <?php
-                    // HDV
                     $guide_name = "Chưa phân bổ"; $guide_note = "";
                     if (!empty($item['guide_id'])) {
                         $guide = pdo_query_one("SELECT name FROM users WHERE id = ?", $item['guide_id']);
@@ -77,7 +74,7 @@
                         <td class="text-end text-danger fw-bold nowrap"><?= number_format($item['total_price']); ?> đ</td>
                         <td class="text-center nowrap"><?= htmlspecialchars($item['start_date']); ?></td>
                         <td class="text-center nowrap"><?= htmlspecialchars($item['end_date']); ?></td>
-                        <td class="note-cell"><?= htmlspecialchars($item['note']); ?></td>
+                        <td class="note-cell"><?= htmlspecialchars($item['note'] ?? ''); ?></td>
 
                         <!-- HDV -->
                         <td class="text-center">
@@ -109,9 +106,12 @@
                                 Ghi chú
                             </button>
 
-                            <a href="?act=booking-edit&id=<?= $item['id']; ?>" class="btn btn-warning btn-sm">Sửa</a>
+                            <a href="?act=booking-issues&booking_id=<?= $item['id'] ?>" class="btn btn-danger btn-sm me-1">
+                                Sự cố
+                            </a>
+
+                            <a href="?act=booking-edit&id=<?= $item['id']; ?>" class="btn btn-warning btn-sm me-1">Sửa</a>
                             <a href="?act=booking-delete&id=<?= $item['id']; ?>" onclick="return confirm('Xóa thật không?')" class="btn btn-danger btn-sm">Xóa</a>
-                            <a href="?act=booking-issues&booking_id=<?= $item['id'] ?>" class="btn btn-danger btn-sm">Sự cố</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -123,10 +123,46 @@
     </div>
 </div>
 
-<!-- Modal Phân bổ HDV (giữ nguyên) -->
-<div class="modal fade" id="guideModal" tabindex="-1"> ... </div> <!-- giữ nguyên phần bạn đã có -->
+<!-- MODAL PHÂN BỘ HDV -->
+<div class="modal fade" id="guideModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="index.php?act=booking-assign-guide" method="post">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Phân bổ Hướng dẫn viên</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="booking_id" id="booking_id">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Chọn hướng dẫn viên</label>
+                            <select name="guide_id" id="guide_id" class="form-select" required>
+                                <option value="">-- Chọn HDV --</option>
+                                <?php
+                                $guides = pdo_query("SELECT id, name FROM users WHERE role = 'guide' ORDER BY name");
+                                foreach ($guides as $g):
+                                ?>
+                                    <option value="<?= $g['id'] ?>"><?= htmlspecialchars($g['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold">Ghi chú phân bổ</label>
+                            <textarea name="guide_note" id="guide_note" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">Lưu phân bổ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-<!-- Modal Ghi chú Admin (MỚI) -->
+<!-- MODAL GHI CHÚ ADMIN -->
 <div class="modal fade" id="noteModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -137,7 +173,7 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="booking_id" id="note_booking_id">
-                    <textarea name="admin_note" id="admin_note" class="form-control" rows="8" 
+                    <textarea name="admin_note" id="admin_note" class="form-control" rows="8"
                               placeholder="Ghi chú nội bộ: khách yêu cầu gì, đã gọi chưa, cần nhắc HDV điều gì, xử lý sự cố..."></textarea>
                 </div>
                 <div class="modal-footer">
