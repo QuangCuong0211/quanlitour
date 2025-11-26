@@ -57,7 +57,7 @@
 <div class="modal fade" id="issueModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="index.php?act=booking-save-issue" method="post" enctype="multipart/form-data">
+            <form action="/?act=booking-save-issue" method="post" enctype="multipart/form-data">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Thêm/Xử lý sự cố</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
