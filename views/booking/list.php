@@ -127,7 +127,7 @@
 <div class="modal fade" id="guideModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="index.php?act=booking-assign-guide" method="post">
+            <form action="/?act=booking-assign-guide" method="post">
                 <div class="modal-header bg-info text-white">
                     <h5 class="modal-title">Phân bổ Hướng dẫn viên</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -166,7 +166,7 @@
 <div class="modal fade" id="noteModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="index.php?act=booking-save-note" method="post">
+            <form action="/?act=booking-save-note" method="post">
                 <div class="modal-header bg-secondary text-white">
                     <h5 class="modal-title">Ghi chú Admin - Booking #<span id="noteBookingId"></span></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
