@@ -58,7 +58,7 @@ class GuideModel
             return false;
         }
 
-        $stmt->bind_param("ssssssi", $name, $email, $sdt, $exp, $language);
+        $stmt->bind_param("ssiss", $name, $email, $sdt, $exp, $language);
         $ok = $stmt->execute();
         $stmt->close();
 
@@ -74,7 +74,7 @@ class GuideModel
             return false;
         }
 
-        $stmt->bind_param("ssssssii", $name, $email, $sdt, $exp, $language, $id);
+        $stmt->bind_param("sssssi", $name, $email, $sdt, $exp, $language, $id);
         $ok = $stmt->execute();
         $stmt->close();
 
