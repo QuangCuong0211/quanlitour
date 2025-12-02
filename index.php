@@ -21,6 +21,7 @@ require_once './controllers/CategoryController.php';
 require_once './controllers/DepartureController.php';
 require_once './controllers/CustomerController.php';
 require_once './controllers/GuideController.php';
+require_once './controllers/ReviewController.php';
 
 
 $act = $_GET['act'] ?? '/';
@@ -31,6 +32,8 @@ $categoryController = new CategoryController();
 $departureController = new DepartureController();
 $customerController = new CustomerController();
 $guideController = new GuideController();
+$reviewController = new ReviewController();
+
 
 
 $routes = [
@@ -78,6 +81,8 @@ $routes = [
     'customer-edit' => ['controller' => $customerController, 'method' => 'customerEdit'],
     'customer-update' => ['controller' => $customerController, 'method' => 'customerUpdate'],
     'customer-delete' => ['controller' => $customerController, 'method' => 'customerDelete'],
+
+    'review-list' => ['controller' => $reviewController, 'method' => 'reviewList'],
 
 ];
 
