@@ -26,26 +26,52 @@
         </div>
     <?php endif; ?>
 
-    <h2>Danh Sách Tours</h2>
+    <h2 class="mb-3">Danh Sách Tours</h2>
 
-    <table class="table table-bordered table-hover mt-2">
+    <table class="table table-bordered table-hover">
         <thead class="table-dark">
         <tr>
-            <th style="width:60px;">ID</th>
-            <th style="width:220px;">Tên Tour</th>
-            <th>Mô tả</th>
-            <th style="width:150px;">Giá</th>
+            <th>ID</th>
+            <th>Mã tour</th>
+            <th>Tên tour</th>
+            <th>Ngày đi</th>
+            <th>Giá</th>
+            <th>Trạng thái</th>
+            <th>Khách hàng</th>
+            <th>HDV</th>
+            <th style="width:200px;">Ghi chú</th>
             <th style="width:150px;">Hành động</th>
         </tr>
         </thead>
         <tbody>
+
         <?php if (!empty($tours)): ?>
             <?php foreach ($tours as $tour): ?>
                 <tr>
                     <td><?= $tour['id'] ?></td>
-                    <td><?= htmlspecialchars($tour['name']) ?></td>
-                    <td><?= nl2br(htmlspecialchars($tour['description'])) ?></td>
-                    <td><?= number_format($tour['price']) ?> VND</td>
+
+                    <td><?= htmlspecialchars($tour['tour_id'] ?? '') ?></td>
+
+                    <td><?= htmlspecialchars($tour['name'] ?? '') ?></td>
+
+                    <td><?= htmlspecialchars($tour['departure_date'] ?? '') ?></td>
+
+                    <td><?= number_format($tour['price'] ?? 0) ?> VND</td>
+
+                    <td>
+                        <?php if (($tour['status'] ?? 0) == 1): ?>
+                            <span class="badge bg-success">Đang mở</span>
+                        <?php else: ?>
+                            <span class="badge bg-secondary">Tạm ngưng</span>
+                        <?php endif; ?>
+                    </td>
+
+                    <td><?= htmlspecialchars($tour['customer'] ?? '') ?></td>
+
+                    <td><?= htmlspecialchars($tour['guide'] ?? '') ?></td>
+
+                    <td><?= nl2br(htmlspecialchars($tour['note'] ?? '')) ?></td>
+
                     <td>
                         <a href="?act=tour-edit&id=<?= $tour['id'] ?>" class="btn btn-warning btn-sm">Sửa</a>
                         <a href="?act=tour-delete&id=<?= $tour['id'] ?>"
@@ -56,13 +82,16 @@
                     </td>
                 </tr>
             <?php endforeach; ?>
+
         <?php else: ?>
             <tr>
-                <td colspan="5" class="text-center text-muted">Chưa có tour nào</td>
+                <td colspan="10" class="text-center text-muted">Chưa có tour nào</td>
             </tr>
         <?php endif; ?>
+
         </tbody>
     </table>
+
 </div>
 </body>
 </html>

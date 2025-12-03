@@ -5,7 +5,6 @@ class TourModel
 
     public function __construct()
     {
-        // Kết nối DB – dùng env.php
         require_once __DIR__ . '/../commons/env.php';
 
         $this->conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT);
@@ -27,18 +26,16 @@ class TourModel
                 $data[] = $row;
             }
         }
-
         return $data;
     }
 
-    // Lấy tour theo id
+    // Lấy tour theo ID
     public function getTourById($id)
     {
         $sql = "SELECT * FROM tours WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
+
+        if (!$stmt) return false;
 
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -49,59 +46,82 @@ class TourModel
         return $tour ?: false;
     }
 
-    // Thêm tour
-    public function insertTour($name, $desc, $price)
+    // Thêm tour bằng mảng dữ liệu
+    public function insertTour($data)
     {
-        $sql = "INSERT INTO tours (name, description, price) VALUES (?, ?, ?)";
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
+        $sql = "INSERT INTO tours (tour_id, name, description, departure_date, price, customer, guide, status, note)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        $stmt->bind_param("ssd", $name, $desc, $price);
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) return false;
+
+        $stmt->bind_param(
+            "sssssssss",
+            $data['tour_id'],
+            $data['name'],
+            $data['description'],
+            $data['departure_date'],
+            $data['price'],
+            $data['customer'],
+            $data['guide'],
+            $data['status'],
+            $data['note']
+        );
+
         $ok = $stmt->execute();
         $stmt->close();
 
         return $ok;
     }
 
-    // Cập nhật tour – trả về status chi tiết
-    public function updateTour($id, $name, $desc, $price)
+    // Cập nhật tour bằng mảng dữ liệu
+    public function updateTour($id, $data)
     {
-        $sql = "UPDATE tours SET name = ?, description = ?, price = ? WHERE id = ?";
+        $sql = "UPDATE tours SET
+                    tour_id = ?,
+                    name = ?,
+                    description = ?,
+                    departure_date = ?,
+                    price = ?,
+                    customer = ?,
+                    guide = ?,
+                    status = ?,
+                    note = ?
+                WHERE id = ?";
+
         $stmt = $this->conn->prepare($sql);
+
         if (!$stmt) {
-            return [
-                'status'  => 'error',
-                'message' => 'Lỗi prepare: ' . $this->conn->error,
-            ];
+            return ['status' => 'error', 'message' => $this->conn->error];
         }
 
-        $stmt->bind_param("ssdi", $name, $desc, $price, $id);
+        $stmt->bind_param(
+            "sssssssssi",
+            $data['tour_id'],
+            $data['name'],
+            $data['description'],
+            $data['departure_date'],
+            $data['price'],
+            $data['customer'],
+            $data['guide'],
+            $data['status'],
+            $data['note'],
+            $id
+        );
 
         if (!$stmt->execute()) {
             $err = $stmt->error;
             $stmt->close();
-            return [
-                'status'  => 'error',
-                'message' => 'Lỗi execute: ' . $err,
-            ];
+            return ['status' => 'error', 'message' => $err];
         }
 
         $affected = $stmt->affected_rows;
         $stmt->close();
 
-        if ($affected > 0) {
-            return [
-                'status'   => 'updated',
-                'affected' => $affected,
-            ];
-        } else {
-            return [
-                'status'   => 'nochange',
-                'affected' => 0,
-            ];
-        }
+        return [
+            'status'   => $affected > 0 ? 'updated' : 'nochange',
+            'affected' => $affected
+        ];
     }
 
     // Xóa tour
@@ -109,9 +129,8 @@ class TourModel
     {
         $sql = "DELETE FROM tours WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
+
+        if (!$stmt) return false;
 
         $stmt->bind_param("i", $id);
         $ok = $stmt->execute();

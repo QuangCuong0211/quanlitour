@@ -31,26 +31,43 @@ class TourController
 
     public function tourSave()
     {
-        if (empty($_POST['name']) || empty($_POST['desc']) || empty($_POST['price'])) {
-            $_SESSION['error'] = "Thiếu dữ liệu!";
+        $data = $_POST;
+
+        // ================ VALIDATE =================
+        $errors = [];
+
+        if (empty($data['tour_id'])) $errors[] = "Mã tour không được để trống.";
+        if (empty($data['name'])) $errors[] = "Tên tour không được để trống.";
+        if (empty($data['description'])) $errors[] = "Mô tả không được để trống.";
+
+        if (empty($data['departure_date'])) {
+            $errors[] = "Ngày khởi hành không được để trống.";
+        } elseif (!strtotime($data['departure_date'])) {
+            $errors[] = "Ngày khởi hành không hợp lệ.";
+        }
+
+        if (empty($data['price']) || $data['price'] <= 0) {
+            $errors[] = "Giá tour phải lớn hơn 0.";
+        }
+
+        if (empty($data['customer'])) $errors[] = "Tên khách hàng không được để trống.";
+        if (empty($data['guide'])) $errors[] = "Tên hướng dẫn viên không được để trống.";
+        if (empty($data['status'])) $errors[] = "Vui lòng chọn trạng thái.";
+
+        // Nếu có lỗi → quay lại form
+        if (!empty($errors)) {
+            $_SESSION['error'] = implode("<br>", $errors);
             header("Location: ?act=tour-add");
             exit();
         }
 
-        $name  = trim($_POST['name']);
-        $desc  = trim($_POST['desc']);
-        $price = floatval($_POST['price']);
+        // ================ INSERT ================
+        $ok = $this->modelTour->insertTour($data);
 
-        if ($price < 0) {
-            $_SESSION['error'] = "Giá tour không hợp lệ!";
-            header("Location: ?act=tour-add");
-            exit();
-        }
-
-        if ($this->modelTour->insertTour($name, $desc, $price)) {
+        if ($ok) {
             $_SESSION['success'] = "Thêm tour thành công!";
         } else {
-            $_SESSION['error'] = "Thêm tour thất bại!";
+            $_SESSION['error'] = "Không thể thêm tour. Vui lòng thử lại.";
         }
 
         header("Location: ?act=tour-list");
@@ -73,21 +90,46 @@ class TourController
 
     public function tourUpdate()
     {
-        $id    = intval($_POST['id']);
-        $name  = trim($_POST['name']);
-        $desc  = trim($_POST['desc']);
-        $price = floatval($_POST['price']);
+        $id   = intval($_POST['id']);
+        $data = $_POST;
 
-        if ($id <= 0 || $name === "" || $desc === "" || $price < 0) {
-            $_SESSION['error'] = "Dữ liệu không hợp lệ!";
+        // ================ VALIDATE =================
+        $errors = [];
+
+        if ($id <= 0) $errors[] = "ID không hợp lệ.";
+        if (empty($data['tour_id'])) $errors[] = "Mã tour không được để trống.";
+        if (empty($data['name'])) $errors[] = "Tên tour không được để trống.";
+        if (empty($data['description'])) $errors[] = "Mô tả không được để trống.";
+
+        if (empty($data['departure_date'])) {
+            $errors[] = "Ngày khởi hành không được để trống.";
+        } elseif (!strtotime($data['departure_date'])) {
+            $errors[] = "Ngày khởi hành không hợp lệ.";
+        }
+
+        if (empty($data['price']) || $data['price'] <= 0) {
+            $errors[] = "Giá tour phải lớn hơn 0.";
+        }
+
+        if (empty($data['customer'])) $errors[] = "Tên khách hàng không được để trống.";
+        if (empty($data['guide'])) $errors[] = "Tên hướng dẫn viên không được để trống.";
+        if (empty($data['status'])) $errors[] = "Vui lòng chọn trạng thái.";
+
+        if (!empty($errors)) {
+            $_SESSION['error'] = implode("<br>", $errors);
             header("Location: ?act=tour-edit&id=$id");
             exit();
         }
 
-        if ($this->modelTour->updateTour($id, $name, $desc, $price)) {
+        // ================ UPDATE ================
+        $result = $this->modelTour->updateTour($id, $data);
+
+        if ($result['status'] === 'updated') {
             $_SESSION['success'] = "Cập nhật tour thành công!";
+        } elseif ($result['status'] === 'nochange') {
+            $_SESSION['success'] = "Không có thay đổi nào!";
         } else {
-            $_SESSION['error'] = "Cập nhật tour thất bại!";
+            $_SESSION['error'] = "Cập nhật thất bại: " . $result['message'];
         }
 
         header("Location: ?act=tour-list");
