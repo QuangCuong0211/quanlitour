@@ -1,102 +1,114 @@
-<!-- views/tour/edit.php -->
+<?php
+require_once '../models/TourModel.php';
+
+$model = new TourModel();
+
+// Lấy ID từ URL
+if (!isset($_GET['id']) || $_GET['id'] <= 0) {
+    die("ID không hợp lệ");
+}
+
+$id = $_GET['id'];
+
+// Lấy dữ liệu tour
+$tour = $model->getTourById($id);
+if (!$tour) {
+    die("Tour không tồn tại");
+}
+
+$errors = [];
+$success = "";
+
+// Nếu submit form
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // Lấy dữ liệu từ POST để giữ lại nếu sai
+    $name  = trim($_POST['name'] ?? '');
+    $desc  = trim($_POST['description'] ?? '');
+    $price = trim($_POST['price'] ?? '');
+
+    // Validate
+    if ($name === "") {
+        $errors['name'] = "Tên tour không được để trống";
+    }
+    if ($desc === "") {
+        $errors['description'] = "Mô tả không được để trống";
+    }
+    if ($price === "") {
+        $errors['price'] = "Giá không được để trống";
+    } elseif (!is_numeric($price) || $price <= 0) {
+        $errors['price'] = "Giá phải là số lớn hơn 0";
+    }
+
+    // Nếu không có lỗi → cập nhật
+    if (empty($errors)) {
+        $result = $model->updateTour($id, $name, $desc, (float)$price);
+
+        if ($result['status'] === 'updated') {
+            $success = "Cập nhật thành công!";
+            // Cập nhật lại dữ liệu để hiển thị đúng
+            $tour = $model->getTourById($id);
+        } elseif ($result['status'] === 'nochange') {
+            $success = "Không có thay đổi nào!";
+        } else {
+            $errors['system'] = "Lỗi hệ thống: " . $result['message'];
+        }
+    }
+}
+
+// Nếu chưa submit → gán dữ liệu gốc từ DB
+$nameValue  = $_POST['name']         ?? $tour['name'];
+$descValue  = $_POST['description']  ?? $tour['description'];
+$priceValue = $_POST['price']        ?? $tour['price'];
+
+?>
+
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Sửa tour</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <title>Sửa Tour</title>
     <style>
-        body { background:#f3f4f6; }
-        .card-shadow { box-shadow:0 10px 25px rgba(0,0,0,0.06); border-radius:18px; }
+        .error { color: red; font-size: 14px; }
+        .success { color: green; font-size: 16px; }
     </style>
 </head>
-<body class="py-4">
-<div class="container" style="max-width: 900px;">
+<body>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h2 class="mb-1">Sửa tour</h2>
-            <div class="text-muted">Chỉnh sửa thông tin tour</div>
-        </div>
-        <a href="?act=tour-list" class="btn btn-outline-secondary">← Danh sách tour</a>
-    </div>
+<h2>Sửa tour</h2>
 
-    <?php if (!empty($_GET['msg'])): ?>
-        <div class="alert alert-success mb-3">
-            <?= htmlspecialchars($_GET['msg']) ?>
-        </div>
+<?php if ($success): ?>
+    <p class="success"><?= $success ?></p>
+<?php endif; ?>
+
+<?php if (isset($errors['system'])): ?>
+    <p class="error"><?= $errors['system'] ?></p>
+<?php endif; ?>
+
+<form method="POST">
+
+    <label>Tên tour:</label><br>
+    <input type="text" name="name" value="<?= htmlspecialchars($nameValue) ?>"><br>
+    <?php if (isset($errors['name'])): ?>
+        <span class="error"><?= $errors['name'] ?></span><br>
+    <?php endif; ?>
+    <br>
+
+    <label>Mô tả:</label><br>
+    <textarea name="description" rows="4"><?= htmlspecialchars($descValue) ?></textarea><br>
+    <?php if (isset($errors['description'])): ?>
+        <span class="error"><?= $errors['description'] ?></span><br>
+    <?php endif; ?>
+    <br>
+
+    <label>Giá:</label><br>
+    <input type="text" name="price" value="<?= htmlspecialchars($priceValue) ?>"><br>
+    <?php if (isset($errors['price'])): ?>
+        <span class="error"><?= $errors['price'] ?></span><br>
     <?php endif; ?>
 
-    <?php if (!empty($_GET['error'])): ?>
-        <div class="alert alert-danger mb-3">
-            <?= htmlspecialchars($_GET['error']) ?>
-        </div>
-    <?php endif; ?>
+    <br><br>
+    <button type="submit">Cập nhật</button>
+</form>
 
-    <div class="card card-shadow border-0">
-        <div class="card-body p-4">
-
-            <form action="?act=tour-update" method="post" class="row g-3">
-
-                <input type="hidden" name="id" value="<?= htmlspecialchars($tour['id']) ?>">
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Mã tour (ID)</label>
-                    <input type="text" name="tour_id" class="form-control" value="<?= htmlspecialchars($tour['tour_id']) ?>" required>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Ngày đi</label>
-                    <input type="date" name="departure_date" class="form-control" value="<?= htmlspecialchars($tour['departure_date']) ?>" required>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Trạng thái</label>
-                    <select name="status" class="form-select" required>
-                        <option value="1" <?= $tour['status']==1?'selected':'' ?>>Hoạt động</option>
-                        <option value="0" <?= $tour['status']==0?'selected':'' ?>>Ngừng hoạt động</option>
-                    </select>
-                </div>
-
-                <div class="col-12">
-                    <label class="form-label fw-semibold">Tên tour</label>
-                    <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($tour['name']) ?>" required>
-                </div>
-
-                <div class="col-12">
-                    <label class="form-label fw-semibold">Mô tả</label>
-                    <textarea name="desc" class="form-control" rows="4" required><?= htmlspecialchars($tour['description']) ?></textarea>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Giá tour (1 người lớn)</label>
-                    <input type="number" name="price" class="form-control" min="0" value="<?= htmlspecialchars($tour['price']) ?>" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Khách hàng</label>
-                    <input type="text" name="customer" class="form-control" value="<?= htmlspecialchars($tour['customer']) ?>" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Hướng dẫn viên (HDV)</label>
-                    <input type="text" name="guide" class="form-control" value="<?= htmlspecialchars($tour['guide']) ?>" required>
-                </div>
-
-                <div class="col-12">
-                    <label class="form-label fw-semibold">Ghi chú</label>
-                    <textarea name="note" class="form-control" rows="3"><?= htmlspecialchars($tour['note']) ?></textarea>
-                </div>
-
-                <div class="col-12 d-flex justify-content-end mt-3">
-                    <a href="?act=tour-list" class="btn btn-outline-secondary me-2">Hủy</a>
-                    <button class="btn btn-primary">Cập nhật</button>
-                </div>
-            </form>
-
-        </div>
-    </div>
-
-</div>
 </body>
 </html>

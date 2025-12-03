@@ -51,7 +51,7 @@
                 <div class="col-md-4">
                     <label class="form-label fw-semibold">Trạng thái</label>
                     <select name="status" class="form-select" required>
-                        <option value="">-- Chọn trạng thái --</option>
+                        <option value="<?= htmlspecialchars($_POST['name'] ?? '') ?>">-- Chọn trạng thái --</option>
                         <option value="1">Hoạt động</option>
                         <option value="0">Ngừng hoạt động</option>
                     </select>
