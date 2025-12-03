@@ -11,6 +11,7 @@ require_once './models/BookingModel.php';
 require_once './models/CategoryModel.php';
 require_once './models/DepartureModel.php';
 require_once './models/CustomerModel.php';
+require_once './models/GuideModel.php';
 
 // Controllers
 require_once './controllers/TourController.php';
@@ -18,6 +19,7 @@ require_once './controllers/BookingController.php';
 require_once './controllers/CategoryController.php';
 require_once './controllers/DepartureController.php';
 require_once './controllers/CustomerController.php';
+require_once './controllers/GuideController.php';
 
 $act = $_GET['act'] ?? '/';
 
@@ -26,6 +28,7 @@ $bookingController = new BookingController();
 $categoryController = new CategoryController();
 $departureController = new DepartureController();
 $customerController = new CustomerController();
+$guideController = new GuideController();
 
 $routes = [
     '/'            => ['controller' => $tourController, 'method' => 'Home'],
@@ -69,6 +72,14 @@ $routes = [
     'customer-edit'   => ['controller' => $customerController, 'method' => 'customerEdit'],
     'customer-update' => ['controller' => $customerController, 'method' => 'customerUpdate'],
     'customer-delete' => ['controller' => $customerController, 'method' => 'customerDelete'],
+
+    'guide-list'   => ['controller' => $guideController, 'method' => 'guideList'],
+    'guide-add'    => ['controller' => $guideController, 'method' => 'guideAdd'],
+    'guide-save'   => ['controller' => $guideController, 'method' => 'guideSave'],
+    'guide-edit'   => ['controller' => $guideController, 'method' => 'guideEdit'],
+    'guide-update' => ['controller' => $guideController, 'method' => 'guideUpdate'],
+    'guide-toggle' => ['controller' => $guideController, 'method' => 'guideToggleStatus'],
+    'guide-delete' => ['controller' => $guideController, 'method' => 'guideDelete'],
 
 ];
 

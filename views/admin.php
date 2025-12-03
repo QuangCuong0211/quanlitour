@@ -91,6 +91,7 @@
     <a href="?act=departure-list">Lịch Khởi Hành</a>
     <a href="?act=customer-list">Khách Hàng</a>
     <a href="?act=booking-list">Quản lý Booking</a>
+    <a href="?act=guide-list">Hướng dẫn viên</a>
     <a href="#">Báo cáo</a>
 </div>
 
