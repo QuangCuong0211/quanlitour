@@ -1,14 +1,28 @@
+<?php
+// Hiển thị thông báo flash message
+if (isset($_SESSION['success'])) {
+    echo '<div style="background: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #c3e6cb;">' . htmlspecialchars($_SESSION['success']) . '</div>';
+    unset($_SESSION['success']);
+}
+if (isset($_SESSION['error'])) {
+    echo '<div style="background: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">' . htmlspecialchars($_SESSION['error']) . '</div>';
+    unset($_SESSION['error']);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách Hướng dẫn viên</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <title>Quản lý HDV</title>
     <style>
-        body { margin:0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f4f4f4; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+        }
 
-        /* SIDEBAR */
         .sidebar {
             width: 220px;
             height: 100vh;
@@ -20,124 +34,224 @@
             padding-top: 20px;
             overflow-y: auto;
         }
-        .sidebar h2 { text-align: center; margin-bottom: 30px; margin-top: 0; font-size: 20px; }
-        .sidebar a { display:block; padding:12px 20px; color:#fff; text-decoration:none; border-left:3px solid transparent; }
-        .sidebar a:hover { background:#334155; border-left-color:#10b981; }
-        .sidebar a.active { background:#334155; border-left-color:#10b981; }
 
-        /* MAIN CONTENT */
-        .content { margin-left: 220px; padding: 20px; }
-        .main-container { margin-top: 10px; }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            margin-top: 0;
+        }
 
-        .nowrap { white-space: nowrap; }
-        .status-active { background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 4px; }
-        .status-inactive { background-color: #f8d7da; color: #721c24; padding: 5px 10px; border-radius: 4px; }
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: #fff;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar a:hover {
+            background: #334155;
+            border-left-color: #10b981;
+        }
+
+        .sidebar a.active {
+            background: #334155;
+            border-left-color: #10b981;
+        }
+
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #1e293b;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #10b981;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-edit {
+            background: #f59e0b;
+        }
+
+        .btn-edit:hover {
+            background: #d97706;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        table th {
+            background: #1e293b;
+            color: #fff;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        table tr:hover {
+            background: #f9fafb;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .actions a {
+            display: inline-block;
+            padding: 8px 15px;
+            font-size: 13px;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .status.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status.inactive {
+            background: #fee2e2;
+            color: #7f1d1d;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
     </style>
 </head>
+
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h2>Admin</h2>
-    <a href="?act=admin">Dashboard</a>
-    <a href="?act=tour-list">Quản lý Tour</a>
-    <a href="?act=category-list">Quản lý Danh Mục</a>
-    <a href="?act=departure-list">Lịch Khởi Hành</a>
-    <a href="?act=customer-list">Khách Hàng</a>
-    <a href="?act=booking-list">Quản lý Booking</a>
-    <a href="?act=guide-list" class="active">Hướng dẫn viên</a>
-    <a href="?act=user-list">Quản lý Người dùng</a>
-</div>
-
-<!-- MAIN CONTENT -->
-<div class="content">
-    <div class="container main-container">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Danh sách Hướng dẫn viên</h2>
-            <div class="d-flex gap-2">
-                <a href="?act=admin" class="btn btn-secondary">Quay về Dashboard</a>
-                <a href="?act=guide-add" class="btn btn-primary">+ Thêm HDV</a>
-            </div>
-        </div>
-
-        <?php if (!empty($_SESSION['success'])): ?>
-            <div class="alert alert-success"><?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?></div>
-        <?php endif; ?>
-        <?php if (!empty($_SESSION['error'])): ?>
-            <div class="alert alert-danger"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
-        <?php endif; ?>
-
-        <!-- TÌM KIẾM -->
-        <div class="mb-3">
-            <form method="get" class="d-flex gap-2">
-                <input type="hidden" name="act" value="guide-list">
-                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm theo tên, email, hoặc điện thoại..." value="<?= htmlspecialchars($_GET['search'] ?? ''); ?>">
-                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
-                <a href="?act=guide-list" class="btn btn-outline-secondary">Xóa bộ lọc</a>
-            </form>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle mb-0">
-                <thead class="table-dark text-center">
-                <tr>
-                    <th class="nowrap">ID</th>
-                    <th class="nowrap">Tên HDV</th>
-                    <th class="nowrap">Email</th>
-                    <th class="nowrap">Điện thoại</th>
-                    <th class="nowrap">Trạng thái</th>
-                    <th class="nowrap">Ngày tạo</th>
-                    <th class="nowrap">Hành động</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php if (!empty($guides)): ?>
-                    <?php foreach ($guides as $guide): ?>
-                        <tr>
-                            <td class="text-center nowrap"><?= $guide['id'] ?></td>
-                            <td class="nowrap"><?= htmlspecialchars($guide['name']) ?></td>
-                            <td class="nowrap"><?= htmlspecialchars($guide['email']) ?></td>
-                            <td class="nowrap"><?= htmlspecialchars($guide['phone']) ?></td>
-                            <td class="text-center nowrap">
-                                <?php if ($guide['status'] == 1): ?>
-                                    <span class="status-active"><i class="fas fa-check-circle"></i> Hoạt động</span>
-                                <?php else: ?>
-                                    <span class="status-inactive"><i class="fas fa-lock"></i> Khóa</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center nowrap"><?= date('d/m/Y', strtotime($guide['created_at'])) ?></td>
-                            <td class="text-center nowrap">
-                                <a href="?act=guide-edit&id=<?= $guide['id'] ?>" class="btn btn-warning btn-sm me-1" title="Sửa">
-                                    <i class="fas fa-edit"></i> Sửa
-                                </a>
-
-                                <?php if ($guide['status'] == 1): ?>
-                                    <a href="?act=guide-toggle&id=<?= $guide['id'] ?>" class="btn btn-danger btn-sm me-1" onclick="return confirm('Khóa tài khoản này?')" title="Khóa">
-                                        <i class="fas fa-lock"></i> Khóa
-                                    </a>
-                                <?php else: ?>
-                                    <a href="?act=guide-toggle&id=<?= $guide['id'] ?>" class="btn btn-success btn-sm me-1" onclick="return confirm('Mở khóa tài khoản này?')" title="Mở khóa">
-                                        <i class="fas fa-unlock"></i> Mở khóa
-                                    </a>
-                                <?php endif; ?>
-
-                                <a href="?act=guide-delete&id=<?= $guide['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Xóa hướng dẫn viên này? Hành động không thể hoàn tác!')" title="Xóa">
-                                    <i class="fas fa-trash"></i> Xóa
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr><td colspan="7" class="text-center text-muted p-3">Chưa có hướng dẫn viên nào!</td></tr>
-                <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
+    <div class="sidebar">
+        <h2>Admin</h2>
+        <a href="?act=admin">Dashboard</a>
+        <a href="?act=tour-list">Quản lý Tour</a>
+        <a href="?act=guide-list">Quản lý HDV</a>
+        <a href="?act=category-list">Quản lý Danh Mục</a>
+        <a href="?act=departure-list">Lịch Khởi Hành</a>
+        <a href="?act=customer-list" class="active">Khách Hàng</a>
+        <a href="?act=booking-list">Quản lý Booking</a>
+        <a href="#">Báo cáo</a>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="content">
+        <div class="card">
+            <h2>Danh Sách HDV</h2>
+
+            <a href="?act=guide-add" class="btn">+ Thêm HDV</a>
+
+            <br><br>
+
+            <?php if (empty($guides)): ?>
+                <div class="empty">
+                    <p>Chưa có HDV <a href="?act=guide-add">Thêm hdv mới</a></p>
+                </div>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">ID</th>
+                            <th style="width: 15%;">Tên</th>
+                            <th style="width: 18%;">Email</th>
+                            <th style="width: 12%;">Điện Thoại</th>
+                            <th style="width: 18%;">img</th>
+                            <th style="width: 10%;">kn</th>
+                            <th style="width: 15%;">nn</th>
+                            <th style="width: 18%;">Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($guides as $gui): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($gui['id']); ?></td>
+                                <td><?php echo htmlspecialchars($gui['name']); ?></td>
+                                <td><?php echo htmlspecialchars($gui['email']); ?></td>
+                                <td><?php echo htmlspecialchars($gui['sdt']); ?></td>
+                                <td>
+                                    <?php
+                                    // thử ghép .jpg trước
+                                    $filenameJpg = $gui['img'] . '.jpg';
+                                    echo $filenameJpg; // kiểm tra
+                            
+                                    // thử ghép .png
+                                    $filenamePng = $gui['img'] . '.png';
+                                    echo '<br>' . $filenamePng; // kiểm tra trên dòng kế
+                            
+                                    // chọn 1 trong 2 để hiển thị ảnh
+                                    ?>
+                                    <img src="/uploads/<?php echo htmlspecialchars($filenameJpg); ?>" width="80" height="80"
+                                        style="object-fit: cover; border-radius: 8px;">
+
+                                </td>
+                                <td><?php echo htmlspecialchars($gui['exp']); ?></td>
+                                <td><?php echo htmlspecialchars($gui['language']); ?></td>
+
+
+
+                                <td>
+                                    <div class="actions">
+                                        <a href="?act=guide-edit&id=<?php echo $gui['id']; ?>" class="btn btn-edit">Sửa</a>
+                                        <a href="?act=guide-delete&id=<?php echo $gui['id']; ?>" class="btn btn-danger"
+                                            onclick="return confirm('Bạn chắc chắn muốn xóa?');">Xóa</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    </div>
+
 </body>
+
 </html>

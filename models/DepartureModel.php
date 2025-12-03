@@ -98,7 +98,7 @@ class DepartureModel
             return false;
         }
 
-        $stmt->bind_param("isssis", $tour_id, $departure_date, $return_date, $guide_id, $seats_available, $status);
+        $stmt->bind_param("isssii", $tour_id, $departure_date, $return_date, $guide_id, $seats_available, $status);
         $ok = $stmt->execute();
         $stmt->close();
 
