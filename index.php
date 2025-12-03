@@ -13,6 +13,7 @@ require_once './models/DepartureModel.php';
 require_once './models/CustomerModel.php';
 require_once './models/GuideModel.php';
 
+
 // Controllers
 require_once './controllers/TourController.php';
 require_once './controllers/BookingController.php';
@@ -20,6 +21,8 @@ require_once './controllers/CategoryController.php';
 require_once './controllers/DepartureController.php';
 require_once './controllers/CustomerController.php';
 require_once './controllers/GuideController.php';
+require_once './controllers/ReviewController.php';
+
 
 $act = $_GET['act'] ?? '/';
 
@@ -29,57 +32,57 @@ $categoryController = new CategoryController();
 $departureController = new DepartureController();
 $customerController = new CustomerController();
 $guideController = new GuideController();
+$reviewController = new ReviewController();
+
+
 
 $routes = [
-    '/'            => ['controller' => $tourController, 'method' => 'Home'],
-    'admin'        => ['controller' => $tourController, 'method' => 'Admin'],
+    '/' => ['controller' => $tourController, 'method' => 'Home'],
+    'admin' => ['controller' => $tourController, 'method' => 'Admin'],
 
-    'tour-list'    => ['controller' => $tourController, 'method' => 'tourList'],
-    'tour-add'     => ['controller' => $tourController, 'method' => 'tourAdd'],
-    'tour-save'    => ['controller' => $tourController, 'method' => 'tourSave'],
-    'tour-edit'    => ['controller' => $tourController, 'method' => 'tourEdit'],
-    'tour-update'  => ['controller' => $tourController, 'method' => 'tourUpdate'],
-    'tour-delete'  => ['controller' => $tourController, 'method' => 'tourDelete'],
+    'guide-list' => ['controller' => $guideController, 'method' => 'guideList'],
+    'guide-add' => ['controller' => $guideController, 'method' => 'guideAdd'],
+    'guide-save' => ['controller' => $guideController, 'method' => 'guideSave'],
+    'guide-edit' => ['controller' => $guideController, 'method' => 'guideEdit'],
+    'guide-update' => ['controller' => $guideController, 'method' => 'guideUpdate'],
+    'guide-delete' => ['controller' => $guideController, 'method' => 'guideDelete'],
 
-    'booking-list'   => ['controller' => $bookingController, 'method' => 'index'],
-    'booking-assign-guide' => ['controller' => $bookingController, 'method' => 'assignGuide'],
-    'booking-save-note'    => ['controller' => $bookingController, 'method' => 'saveAdminNote'],
-    'booking-add'    => ['controller' => $bookingController, 'method' => 'create'],
-    'booking-save'   => ['controller' => $bookingController, 'method' => 'store'],
-    'booking-edit'   => ['controller' => $bookingController, 'method' => 'edit'],
+    'tour-list' => ['controller' => $tourController, 'method' => 'tourList'],
+    'tour-add' => ['controller' => $tourController, 'method' => 'tourAdd'],
+    'tour-save' => ['controller' => $tourController, 'method' => 'tourSave'],
+    'tour-edit' => ['controller' => $tourController, 'method' => 'tourEdit'],
+    'tour-update' => ['controller' => $tourController, 'method' => 'tourUpdate'],
+    'tour-delete' => ['controller' => $tourController, 'method' => 'tourDelete'],
+
+    'booking-list' => ['controller' => $bookingController, 'method' => 'index'],
+    'booking-add' => ['controller' => $bookingController, 'method' => 'create'],
+    'booking-save' => ['controller' => $bookingController, 'method' => 'store'],
+    'booking-edit' => ['controller' => $bookingController, 'method' => 'edit'],
     'booking-update' => ['controller' => $bookingController, 'method' => 'update'],
     'booking-delete' => ['controller' => $bookingController, 'method' => 'delete'],
-    'booking-issues'     => ['controller' => $bookingController, 'method' => 'issues'],
-    'booking-save-issue' => ['controller' => $bookingController, 'method' => 'saveIssue'],
 
-    'category-list'   => ['controller' => $categoryController, 'method' => 'categoryList'],
-    'category-add'    => ['controller' => $categoryController, 'method' => 'categoryAdd'],
-    'category-save'   => ['controller' => $categoryController, 'method' => 'categorySave'],
-    'category-edit'   => ['controller' => $categoryController, 'method' => 'categoryEdit'],
+    'category-list' => ['controller' => $categoryController, 'method' => 'categoryList'],
+    'category-add' => ['controller' => $categoryController, 'method' => 'categoryAdd'],
+    'category-save' => ['controller' => $categoryController, 'method' => 'categorySave'],
+    'category-edit' => ['controller' => $categoryController, 'method' => 'categoryEdit'],
     'category-update' => ['controller' => $categoryController, 'method' => 'categoryUpdate'],
     'category-delete' => ['controller' => $categoryController, 'method' => 'categoryDelete'],
 
-    'departure-list'   => ['controller' => $departureController, 'method' => 'departureList'],
-    'departure-add'    => ['controller' => $departureController, 'method' => 'departureAdd'],
-    'departure-save'   => ['controller' => $departureController, 'method' => 'departureSave'],
-    'departure-edit'   => ['controller' => $departureController, 'method' => 'departureEdit'],
+    'departure-list' => ['controller' => $departureController, 'method' => 'departureList'],
+    'departure-add' => ['controller' => $departureController, 'method' => 'departureAdd'],
+    'departure-save' => ['controller' => $departureController, 'method' => 'departureSave'],
+    'departure-edit' => ['controller' => $departureController, 'method' => 'departureEdit'],
     'departure-update' => ['controller' => $departureController, 'method' => 'departureUpdate'],
     'departure-delete' => ['controller' => $departureController, 'method' => 'departureDelete'],
 
-    'customer-list'   => ['controller' => $customerController, 'method' => 'customerList'],
-    'customer-add'    => ['controller' => $customerController, 'method' => 'customerAdd'],
-    'customer-save'   => ['controller' => $customerController, 'method' => 'customerSave'],
-    'customer-edit'   => ['controller' => $customerController, 'method' => 'customerEdit'],
+    'customer-list' => ['controller' => $customerController, 'method' => 'customerList'],
+    'customer-add' => ['controller' => $customerController, 'method' => 'customerAdd'],
+    'customer-save' => ['controller' => $customerController, 'method' => 'customerSave'],
+    'customer-edit' => ['controller' => $customerController, 'method' => 'customerEdit'],
     'customer-update' => ['controller' => $customerController, 'method' => 'customerUpdate'],
     'customer-delete' => ['controller' => $customerController, 'method' => 'customerDelete'],
 
-    'guide-list'   => ['controller' => $guideController, 'method' => 'guideList'],
-    'guide-add'    => ['controller' => $guideController, 'method' => 'guideAdd'],
-    'guide-save'   => ['controller' => $guideController, 'method' => 'guideSave'],
-    'guide-edit'   => ['controller' => $guideController, 'method' => 'guideEdit'],
-    'guide-update' => ['controller' => $guideController, 'method' => 'guideUpdate'],
-    'guide-toggle' => ['controller' => $guideController, 'method' => 'guideToggleStatus'],
-    'guide-delete' => ['controller' => $guideController, 'method' => 'guideDelete'],
+    'review-list' => ['controller' => $reviewController, 'method' => 'reviewList'],
 
 ];
 
