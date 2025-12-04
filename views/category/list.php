@@ -186,7 +186,6 @@ if (isset($_SESSION['error'])) {
     <a href="?act=category-list" class="active">Quản lý Danh Mục</a>
     <a href="#">Quản lý Khách hàng</a>
     <a href="?act=booking-list">Quản lý Booking</a>
-    <a href="#">Báo cáo</a>
 </div>
 
 <!-- MAIN CONTENT -->

@@ -177,10 +177,9 @@ if (isset($_SESSION['error'])) {
         <a href="?act=tour-list">Quản lý Tour</a>
         <a href="?act=guide-list">Quản lý HDV</a>
         <a href="?act=category-list">Quản lý Danh Mục</a>
-        <a href="?act=departure-list">Lịch Khởi Hành</a>
         <a href="?act=customer-list" class="active">Khách Hàng</a>
         <a href="?act=booking-list">Quản lý Booking</a>
-        <a href="#">Báo cáo</a>
+
     </div>
 
     <div class="content">
