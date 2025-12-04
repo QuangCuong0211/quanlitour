@@ -151,10 +151,8 @@ if (isset($_SESSION['error'])) {
         <a href="?act=tour-list">Quản lý Tour</a>
         <a href="?act=guide-list">Quản lý HDV</a>
         <a href="?act=category-list">Quản lý Danh Mục</a>
-        <a href="?act=departure-list">Lịch Khởi Hành</a>
         <a href="?act=customer-list" class="active">Khách Hàng</a>
         <a href="?act=booking-list">Quản lý Booking</a>
-        <a href="#">Báo cáo</a>
     </div>
 
     <div class="content">
@@ -173,18 +171,18 @@ if (isset($_SESSION['error'])) {
                         <input type="email" id="email" name="email" required placeholder="VD: khachhang@gmail.com">
                     </div>
                     <div class="form-group">
-                        <label for="img">ảnh*</label>
+                        <label for="img">Avatar*</label>
                         <input type="file" id="img" name="img" required placeholder="ảnh">
                     </div>
 
                     <div class="form-group">
-                        <label for="sdt">Số Điện Thoại *</label>
+                        <label for="sdt">Số Điện Thoại*</label>
                         <input type="text" id="sdt" name="sdt" required placeholder="VD: 0901234567">
                     </div>
 
                     <div class="form-group">
-                        <label for="exp">kn*</label>
-                        <input type="text" id="exp" name="exp" required placeholder="kn">
+                        <label for="exp">Kinh Nghiệm*</label>
+                        <input type="text" id="exp" name="exp" required placeholder="Kinh nghiệm làm việc">
                     </div>
 
 
@@ -198,7 +196,7 @@ if (isset($_SESSION['error'])) {
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Lưu hdv</button>
+                    <button type="submit" class="btn btn-primary">Lưu HDV</button>
                     <a href="?act=guide-list" class="btn btn-secondary"
                         style="text-decoration: none; display: inline-block;">Hủy</a>
                 </div>

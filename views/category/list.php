@@ -183,6 +183,7 @@ if (isset($_SESSION['error'])) {
     <h2>Admin</h2>
     <a href="?act=admin">Dashboard</a>
     <a href="?act=tour-list">Quản lý Tour</a>
+    <a href="?act=guide-list">Quản lý HDV</a>
     <a href="?act=category-list" class="active">Quản lý Danh Mục</a>
     <a href="#">Quản lý Khách hàng</a>
     <a href="?act=booking-list">Quản lý Booking</a>

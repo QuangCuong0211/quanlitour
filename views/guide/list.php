@@ -1,256 +1,157 @@
 <?php
-// Hiển thị thông báo flash message
-if (isset($_SESSION['success'])) {
-    echo '<div style="background: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #c3e6cb;">' . htmlspecialchars($_SESSION['success']) . '</div>';
-    unset($_SESSION['success']);
-}
-if (isset($_SESSION['error'])) {
-    echo '<div style="background: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">' . htmlspecialchars($_SESSION['error']) . '</div>';
-    unset($_SESSION['error']);
-}
-?>
+// Flash message
+function flash($key) {
+    if (!empty($_SESSION[$key])) {
+        $color = $key === 'success' ? '#d4edda' : '#f8d7da';
+        $border = $key === 'success' ? '#c3e6cb' : '#f5c6cb';
+        $text = $key === 'success' ? '#155724' : '#721c24';
 
+        echo "<div style='background:$color;color:$text;padding:15px;margin-bottom:20px;
+                border-radius:5px;border:1px solid $border;'>"
+             . htmlspecialchars($_SESSION[$key]) .
+             "</div>";
+
+        unset($_SESSION[$key]);
+    }
+}
+
+flash('success');
+flash('error');
+?>
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <title>Quản lý HDV</title>
+
     <style>
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
+            margin: 0; font-family: Arial; background: #f4f4f4;
         }
-
         .sidebar {
-            width: 220px;
-            height: 100vh;
-            background: #1E293B;
-            color: #fff;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding-top: 20px;
-            overflow-y: auto;
+            width:220px;height:100vh;background:#1E293B;color:#fff;
+            position:fixed;top:0;left:0;padding-top:20px;
         }
-
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            margin-top: 0;
-        }
-
         .sidebar a {
-            display: block;
-            padding: 12px 20px;
-            color: #fff;
-            text-decoration: none;
-            border-left: 3px solid transparent;
+            display:block;padding:12px 20px;color:#fff;
+            text-decoration:none;border-left:3px solid transparent;
         }
-
-        .sidebar a:hover {
-            background: #334155;
-            border-left-color: #10b981;
+        .sidebar a.active, .sidebar a:hover {
+            background:#334155;border-left-color:#10b981;
         }
-
-        .sidebar a.active {
-            background: #334155;
-            border-left-color: #10b981;
-        }
-
-        .content {
-            margin-left: 220px;
-            padding: 20px;
-        }
-
+        .content { margin-left:220px;padding:20px; }
         .card {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background:#fff;border-radius:8px;padding:20px;
+            box-shadow:0 2px 5px rgba(0,0,0,.1);
         }
-
-        .card h2 {
-            margin-top: 0;
-            color: #1e293b;
+        table { width:100%;border-collapse:collapse;background:#fff; }
+        th {
+            background:#1e293b;color:#fff;padding:12px;text-align:left;
         }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #10b981;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn:hover {
-            background: #059669;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-edit {
-            background: #f59e0b;
-        }
-
-        .btn-edit:hover {
-            background: #d97706;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-        }
-
-        table th {
-            background: #1e293b;
-            color: #fff;
-            padding: 12px;
-            text-align: left;
-            font-weight: bold;
-        }
-
-        table td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            font-size: 14px;
-        }
-
-        table tr:hover {
-            background: #f9fafb;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .actions a {
-            display: inline-block;
-            padding: 8px 15px;
-            font-size: 13px;
-        }
-
-        .status {
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .status.active {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status.inactive {
-            background: #fee2e2;
-            color: #7f1d1d;
-        }
-
-        .empty {
-            text-align: center;
-            padding: 40px;
-            color: #6b7280;
-        }
+        td { padding:12px;border-bottom:1px solid #ddd;font-size:14px; }
+        img { border-radius:6px;object-fit:cover; }
+        .btn { padding:8px 15px;color:#fff;border-radius:5px;text-decoration:none; }
+        .btn-edit { background:#f59e0b; }
+        .btn-danger { background:#ef4444; }
+        .btn-add { background:#10b981; }
     </style>
 </head>
 
 <body>
 
-    <div class="sidebar">
-        <h2>Admin</h2>
-        <a href="?act=admin">Dashboard</a>
-        <a href="?act=tour-list">Quản lý Tour</a>
-        <a href="?act=guide-list">Quản lý HDV</a>
-        <a href="?act=category-list">Quản lý Danh Mục</a>
-        <a href="?act=customer-list" class="active">Khách Hàng</a>
-        <a href="?act=booking-list">Quản lý Booking</a>
+<div class="sidebar">
+    <h2 style="text-align:center;margin:0 0 30px 0;">Admin</h2>
+    <a href="?act=admin">Dashboard</a>
+    <a href="?act=tour-list">Quản lý Tour</a>
+    <a href="?act=guide-list" class="active">Quản lý HDV</a>
+    <a href="?act=category-list">Quản lý Danh Mục</a>
+    <a href="?act=customer-list">Khách Hàng</a>
+    <a href="?act=booking-list">Quản lý Booking</a>
+</div>
+
+<div class="content">
+    <div class="card">
+        <h2>Danh Sách HDV</h2>
+
+        <a href="?act=guide-add" class="btn btn-add">+ Thêm HDV</a>
+        <br><br>
+
+        <?php if (empty($guides)): ?>
+            <div style="text-align:center;padding:30px;color:#6b7280;">Chưa có HDV</div>
+        <?php else: ?>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên</th>
+                <th>Email</th>
+                <th>SĐT</th>
+                <th>Ảnh</th>
+                <th>Kinh Nghiệm</th>
+                <th>Ngoại Ngữ</th>
+                <th>Hành Động</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <?php foreach ($guides as $g): ?>
+
+                <?php
+                // Dữ liệu an toàn
+                $id = htmlspecialchars($g['id'] ?? '');
+                $name = htmlspecialchars($g['name'] ?? '');
+                $email = htmlspecialchars($g['email'] ?? '');
+                $sdt = htmlspecialchars($g['sdt'] ?? '');
+                $exp = htmlspecialchars($g['exp'] ?? '');
+                $lang = htmlspecialchars($g['language'] ?? '');
+
+                // Xử lý ảnh
+                $imgName = trim($g['img'] ?? '');
+
+                // Nếu ảnh trong DB đã có đuôi → dùng luôn
+                if ($imgName && preg_match('/\.(jpg|jpeg|png)$/i', $imgName)) {
+                    $finalImg = "uploads/$imgName";
+                } else {
+                    // Thử tìm file theo 2 đuôi
+                    $jpg = "uploads/$imgName.jpg";
+                    $png = "uploads/$imgName.png";
+
+                    if ($imgName && file_exists($jpg)) $finalImg = $jpg;
+                    elseif ($imgName && file_exists($png)) $finalImg = $png;
+                    else $finalImg = "uploads/no-image.png";
+                }
+                ?>
+
+                <tr>
+                    <td><?= $id ?></td>
+                    <td><?= $name ?></td>
+                    <td><?= $email ?></td>
+                    <td><?= $sdt ?></td>
+                    <td>
+                        <img src="<?= $finalImg ?>" width="80" height="80">
+                    </td>
+                    <td><?= $exp ?></td>
+                    <td><?= $lang ?></td>
+
+                    <td>
+                        <div style="display:flex;gap:10px;">
+                            <a class="btn btn-edit" href="?act=guide-edit&id=<?= $id ?>">Sửa</a>
+                            <a class="btn btn-danger"
+                               onclick="return confirm('Xóa HDV này?')"
+                               href="?act=guide-delete&id=<?= $id ?>">Xóa</a>
+                        </div>
+                    </td>
+                </tr>
+
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        <?php endif; ?>
 
     </div>
-
-    <div class="content">
-        <div class="card">
-            <h2>Danh Sách HDV</h2>
-
-            <a href="?act=guide-add" class="btn">+ Thêm HDV</a>
-
-            <br><br>
-
-            <?php if (empty($guides)): ?>
-                <div class="empty">
-                    <p>Chưa có HDV <a href="?act=guide-add">Thêm hdv mới</a></p>
-                </div>
-            <?php else: ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 8%;">ID</th>
-                            <th style="width: 15%;">Tên</th>
-                            <th style="width: 18%;">Email</th>
-                            <th style="width: 12%;">Điện Thoại</th>
-                            <th style="width: 18%;">img</th>
-                            <th style="width: 10%;">kn</th>
-                            <th style="width: 15%;">nn</th>
-                            <th style="width: 18%;">Hành Động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($guides as $gui): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($gui['id']); ?></td>
-                                <td><?php echo htmlspecialchars($gui['name']); ?></td>
-                                <td><?php echo htmlspecialchars($gui['email']); ?></td>
-                                <td><?php echo htmlspecialchars($gui['sdt']); ?></td>
-                                <td>
-                                    <?php
-                                    // thử ghép .jpg trước
-                                    $filenameJpg = $gui['img'] . '.jpg';
-                                    echo $filenameJpg; // kiểm tra
-                            
-                                    // thử ghép .png
-                                    $filenamePng = $gui['img'] . '.png';
-                                    echo '<br>' . $filenamePng; // kiểm tra trên dòng kế
-                            
-                                    // chọn 1 trong 2 để hiển thị ảnh
-                                    ?>
-                                    <img src="/uploads/<?php echo htmlspecialchars($filenameJpg); ?>" width="80" height="80"
-                                        style="object-fit: cover; border-radius: 8px;">
-
-                                </td>
-                                <td><?php echo htmlspecialchars($gui['exp']); ?></td>
-                                <td><?php echo htmlspecialchars($gui['language']); ?></td>
-
-
-
-                                <td>
-                                    <div class="actions">
-                                        <a href="?act=guide-edit&id=<?php echo $gui['id']; ?>" class="btn btn-edit">Sửa</a>
-                                        <a href="?act=guide-delete&id=<?php echo $gui['id']; ?>" class="btn btn-danger"
-                                            onclick="return confirm('Bạn chắc chắn muốn xóa?');">Xóa</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
-        </div>
-    </div>
+</div>
 
 </body>
-
 </html>
