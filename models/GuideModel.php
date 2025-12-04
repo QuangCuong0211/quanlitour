@@ -1,79 +1,99 @@
 <?php
-require_once "commons/database.php";
-require_once "commons/function.php";
+class GuideModel
+{
+    public $conn;
 
-class GuideModel {
+    public function __construct()
+    {
+        require_once __DIR__ . '/../commons/env.php';
 
-    // Lấy tất cả HDV (hướng dẫn viên)
-    public static function getGuides($search = '') {
-        if (!empty($search)) {
-            return pdo_query(
-                "SELECT id, name, email, phone, role, status, created_at FROM users WHERE role = 'hdv' AND (name LIKE ? OR email LIKE ? OR phone LIKE ?) ORDER BY id DESC",
-                "%$search%", "%$search%", "%$search%"
-            );
+        $this->conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT);
+
+        if ($this->conn->connect_error) {
+            die('Kết nối DB thất bại: ' . $this->conn->connect_error);
         }
-        return pdo_query("SELECT id, name, email, phone, role, status, created_at FROM users WHERE role = 'hdv' ORDER BY id DESC");
+    }
+ 
+    // Lấy tất cả khách hàng
+    public function getAllGuides()
+    {
+        $sql = "SELECT * FROM guide ORDER BY id DESC";
+        $result = $this->conn->query($sql);
+
+        $data = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $data[] = $row;
+            }
+        }
+
+        return $data;
     }
 
-    // Lấy HDV theo ID
-    public static function findGuide($id) {
-        return pdo_query_one("SELECT id, name, email, phone, role, status, created_at FROM users WHERE id = ? AND role = 'hdv'", $id);
+    // Lấy khách hàng theo id
+    public function getGuideById($id)
+    {
+        $sql = "SELECT * FROM guide WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $guide = $result->fetch_assoc();
+        $stmt->close();
+
+        return $guide ?: false;
     }
 
-    // Tạo HDV mới
-    public static function createGuide($name, $email, $phone, $password) {
-        $hashed_password = md5($password);
-        return pdo_execute(
-            "INSERT INTO users (name, email, phone, password, role, status) VALUES (?, ?, ?, ?, 'hdv', 1)",
-            $name, $email, $phone, $hashed_password
-        );
+    // Thêm khách hàng
+    public function insertGuide($name, $email, $sdt, $img, $exp, $language)
+    {
+        $sql = "INSERT INTO guide (name, email, sdt, img, exp, language) 
+                VALUES (?, ?, ?,?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("ssisss", $name, $email, $sdt, $img, $exp, $language);
+        $ok = $stmt->execute();
+        $stmt->close();
+
+        return $ok;
     }
 
-    // Cập nhật thông tin HDV
-    public static function updateGuide($id, $name, $email, $phone) {
-        return pdo_execute(
-            "UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ? AND role = 'hdv'",
-            $name, $email, $phone, $id
-        );
+    // Cập nhật khách hàng
+    public function updateGuide($id, $name, $email,  $sdt, $img, $exp, $language)
+    {
+        $sql = "UPDATE guide SET name = ?, email = ?, sdt = ?, img = ?, exp = ?, language = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("ssssssi", $name, $email, $sdt, $img, $exp, $language, $id);
+        $ok = $stmt->execute();
+        $stmt->close();
+
+        return $ok;
     }
 
-    // Đổi mật khẩu HDV
-    public static function changePassword($id, $new_password) {
-        $hashed_password = md5($new_password);
-        return pdo_execute(
-            "UPDATE users SET password = ? WHERE id = ? AND role = 'hdv'",
-            $hashed_password, $id
-        );
-    }
+    // Xóa khách hàng
+    public function deleteGuide($id)
+    {
+        $sql = "DELETE FROM guide WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
 
-    // Khóa/Mở tài khoản HDV
-    public static function toggleStatus($id) {
-        $guide = self::findGuide($id);
-        if (!$guide) return false;
-        
-        $new_status = $guide['status'] ? 0 : 1;
-        return pdo_execute(
-            "UPDATE users SET status = ? WHERE id = ? AND role = 'hdv'",
-            $new_status, $id
-        );
-    }
+        $stmt->bind_param("i", $id);
+        $ok = $stmt->execute();
+        $stmt->close();
 
-    // Xóa HDV
-    public static function deleteGuide($id) {
-        return pdo_execute("DELETE FROM users WHERE id = ? AND role = 'hdv'", $id);
-    }
-
-    // Lấy thông tin HDV cùng số booking
-    public static function getGuideWithStats($id) {
-        $guide = self::findGuide($id);
-        if (!$guide) return null;
-        
-        $stats = pdo_query_one(
-            "SELECT COUNT(*) as total_bookings FROM bookings WHERE guide_id = ?",
-            $id
-        );
-        
-        return array_merge($guide, $stats);
+        return $ok;
     }
 }
-?>

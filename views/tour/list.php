@@ -73,6 +73,9 @@
                     <td><?= nl2br(htmlspecialchars($tour['note'] ?? '')) ?></td>
 
                     <td>
+
+                        <a href="?act=reviews-list" class="btn btn-warning btn-sm">xem dg</a>
+
                         <a href="?act=tour-edit&id=<?= $tour['id'] ?>" class="btn btn-warning btn-sm">Sửa</a>
                         <a href="?act=tour-delete&id=<?= $tour['id'] ?>"
                            class="btn btn-danger btn-sm"

@@ -1,14 +1,23 @@
+<?php
+if (isset($_SESSION['error'])) {
+    echo '<div style="background: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">' . htmlspecialchars($_SESSION['error']) . '</div>';
+    unset($_SESSION['error']);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
-    <title>Sửa Hướng dẫn viên</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <title>Edit Guide</title>
     <style>
-        body { margin:0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f4f4f4; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+        }
 
-        /* SIDEBAR */
         .sidebar {
             width: 220px;
             height: 100vh;
@@ -20,134 +29,195 @@
             padding-top: 20px;
             overflow-y: auto;
         }
-        .sidebar h2 { text-align: center; margin-bottom: 30px; margin-top: 0; font-size: 20px; }
-        .sidebar a { display:block; padding:12px 20px; color:#fff; text-decoration:none; border-left:3px solid transparent; }
-        .sidebar a:hover { background:#334155; border-left-color:#10b981; }
-        .sidebar a.active { background:#334155; border-left-color:#10b981; }
 
-        /* MAIN CONTENT */
-        .content { margin-left: 220px; padding: 20px; }
-        .main-container { margin-top: 10px; }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            margin-top: 0;
+        }
 
-        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 600px; }
-        .alert-info { background-color: #d1ecf1; color: #0c5460; padding: 12px; border-radius: 4px; margin-bottom: 20px; }
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: #fff;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar a:hover {
+            background: #334155;
+            border-left-color: #10b981;
+        }
+
+        .sidebar a.active {
+            background: #334155;
+            border-left-color: #10b981;
+        }
+
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
     </style>
 </head>
+
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h2>Admin</h2>
-    <a href="?act=admin">Dashboard</a>
-    <a href="?act=tour-list">Quản lý Tour</a>
-    <a href="?act=category-list">Quản lý Danh Mục</a>
-    <a href="?act=departure-list">Lịch Khởi Hành</a>
-    <a href="?act=customer-list">Khách Hàng</a>
-    <a href="?act=booking-list">Quản lý Booking</a>
-    <a href="?act=guide-list" class="active">Hướng dẫn viên</a>
-    <a href="?act=user-list">Quản lý Người dùng</a>
-</div>
+    <div class="sidebar">
+        <h2>Admin</h2>
+        <a href="?act=admin">Dashboard</a>
+        <a href="?act=tour-list">Quản lý Tour</a>
+        <a href="?act=guide-list">Quản lý HDV</a>
+        <a href="?act=category-list">Quản lý Danh Mục</a>
+        <a href="?act=departure-list">Lịch Khởi Hành</a>
+        <a href="?act=customer-list" class="active">Khách Hàng</a>
+        <a href="?act=booking-list">Quản lý Booking</a>
+        <a href="#">Báo cáo</a>
+    </div>
 
-<!-- MAIN CONTENT -->
-<div class="content">
-    <div class="container main-container">
+    <div class="content">
+        <div class="card">
+            <h2>Chỉnh Sửa HDV</h2>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Sửa Hướng dẫn viên: <?= htmlspecialchars($guide['name']) ?></h2>
-            <a href="?act=guide-list" class="btn btn-secondary">Quay về danh sách</a>
-        </div>
+            <form method="POST" action="?act=guide-update">
+                <input type="hidden" name="id" value="<?php echo htmlspecialchars($guide['id']); ?>">
 
-        <?php if (!empty($_SESSION['error'])): ?>
-            <div class="alert alert-danger"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
-        <?php endif; ?>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="name">Tên hdv *</label>
+                        <input type="text" id="name" name="name" required
+                            value="<?php echo htmlspecialchars($guide['name']); ?>">
+                    </div>
 
-        <div class="form-container">
-            <form action="/?act=guide-update" method="post" class="needs-validation">
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required
+                            value="<?php echo htmlspecialchars($guide['email']); ?>">
+                    </div>
 
-                <input type="hidden" name="id" value="<?= $guide['id'] ?>">
+                    <div class="form-group">
+                        <label for="sdt">Số Điện Thoại *</label>
+                        <input type="text" id="sdt" name="sdt" required
+                            value="<?php echo htmlspecialchars($guide['sdt']); ?>">
+                    </div>
+                   
+                    <div class="form-group">
+                        <label for="img">Ảnh *</label>
 
-                <div class="mb-3">
-                    <label for="name" class="form-label fw-bold">Họ và tên <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($guide['name']) ?>" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="email" class="form-label fw-bold">Email <span class="text-danger">*</span></label>
-                    <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($guide['email']) ?>" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="phone" class="form-label fw-bold">Điện thoại <span class="text-danger">*</span></label>
-                    <input type="tel" class="form-control" id="phone" name="phone" value="<?= htmlspecialchars($guide['phone']) ?>" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="new_password" class="form-label fw-bold">Đổi mật khẩu (để trống nếu không đổi)</label>
-                    <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Nhập mật khẩu mới">
-                    <small class="text-muted">Để trống để giữ nguyên mật khẩu hiện tại</small>
-                </div>
-
-                <hr>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Trạng thái tài khoản</label>
-                    <div class="alert-info">
-                        <?php if ($guide['status'] == 1): ?>
-                            <strong>Hoạt động</strong> - Tài khoản này đang hoạt động. 
-                            <a href="?act=guide-toggle&id=<?= $guide['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Khóa tài khoản này?')">
-                                <i class="fas fa-lock"></i> Khóa tài khoản
-                            </a>
-                        <?php else: ?>
-                            <strong>Khóa</strong> - Tài khoản này đang bị khóa. 
-                            <a href="?act=guide-toggle&id=<?= $guide['id'] ?>" class="btn btn-sm btn-success" onclick="return confirm('Mở khóa tài khoản này?')">
-                                <i class="fas fa-unlock"></i> Mở khóa tài khoản
-                            </a>
+                        <!-- Hiển thị ảnh hiện tại -->
+                        <?php if (!empty($gui['img'])): ?>
+                            <br>
+                            <img src="/uploads/<?php echo htmlspecialchars($gui['img']); ?>" width="120"
+                                style="border-radius:8px; object-fit: cover;">
+                            <br><br>
                         <?php endif; ?>
+
+                        <!-- Input để chọn ảnh mới -->
+                        <input type="file" id="img" name="img">
                     </div>
-                </div>
-
-                <hr>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Quyền hạn</label>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="perm_view_booking" name="permissions[]" value="view_booking" checked>
-                                <label class="form-check-label" for="perm_view_booking">
-                                    Xem danh sách booking
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="perm_edit_departure" name="permissions[]" value="edit_departure" checked>
-                                <label class="form-check-label" for="perm_edit_departure">
-                                    Cập nhật lịch khởi hành
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="perm_manage_customer" name="permissions[]" value="manage_customer" checked>
-                                <label class="form-check-label" for="perm_manage_customer">
-                                    Quản lý khách hàng
-                                </label>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="exp">Kinh Nghiệm *</label>
+                        <input type="text" id="exp" name="exp" required
+                            value="<?php echo htmlspecialchars($guide['exp']); ?>">
                     </div>
-                </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Cập nhật</button>
-                    <a href="?act=guide-list" class="btn btn-secondary">Hủy</a>
-                    <a href="?act=guide-delete&id=<?= $guide['id'] ?>" class="btn btn-danger ms-auto" onclick="return confirm('Xóa hướng dẫn viên này? Hành động không thể hoàn tác!')">
-                        <i class="fas fa-trash"></i> Xóa HDV
-                    </a>
-                </div>
+                    <div class="form-group">
+                        <label for="language">Ngôn Ngữ *</label>
+                        <textarea id="language" name="language"
+                            required><?php echo htmlspecialchars($guide['language']); ?></textarea>
+                    </div>
 
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Cập Nhật HDV</button>
+                        <a href="?act=guide-list" class="btn btn-secondary"
+                            style="text-decoration: none; display: inline-block;">Hủy</a>
+                    </div>
             </form>
         </div>
-
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

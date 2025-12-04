@@ -12,6 +12,7 @@ if (isset($_SESSION['error'])) {
 
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>Quản lý Khách Hàng</title>
@@ -33,11 +34,13 @@ if (isset($_SESSION['error'])) {
             padding-top: 20px;
             overflow-y: auto;
         }
+
         .sidebar h2 {
             text-align: center;
             margin-bottom: 30px;
             margin-top: 0;
         }
+
         .sidebar a {
             display: block;
             padding: 12px 20px;
@@ -45,10 +48,12 @@ if (isset($_SESSION['error'])) {
             text-decoration: none;
             border-left: 3px solid transparent;
         }
+
         .sidebar a:hover {
             background: #334155;
             border-left-color: #10b981;
         }
+
         .sidebar a.active {
             background: #334155;
             border-left-color: #10b981;
@@ -64,7 +69,7 @@ if (isset($_SESSION['error'])) {
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .card h2 {
@@ -163,70 +168,74 @@ if (isset($_SESSION['error'])) {
         }
     </style>
 </head>
+
 <body>
 
-<div class="sidebar">
-    <h2>Admin</h2>
-    <a href="?act=admin">Dashboard</a>
-    <a href="?act=tour-list">Quản lý Tour</a>
-    <a href="?act=category-list">Quản lý Danh Mục</a>
-    <a href="?act=departure-list">Lịch Khởi Hành</a>
-    <a href="?act=customer-list" class="active">Khách Hàng</a>
-    <a href="?act=booking-list">Quản lý Booking</a>
-    <a href="#">Báo cáo</a>
-</div>
-
-<div class="content">
-    <div class="card">
-        <h2>Danh Sách Khách Hàng</h2>
-
-        <a href="?act=customer-add" class="btn">+ Thêm Khách Hàng</a>
-
-        <br><br>
-
-        <?php if (empty($customers)): ?>
-            <div class="empty">
-                <p>Chưa có khách hàng nào. <a href="?act=customer-add">Thêm khách hàng mới</a></p>
-            </div>
-        <?php else: ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 8%;">ID</th>
-                        <th style="width: 15%;">Tên</th>
-                        <th style="width: 18%;">Email</th>
-                        <th style="width: 12%;">Điện Thoại</th>
-                        <th style="width: 15%;">Thành Phố</th>
-                        <th style="width: 10%;">Trạng Thái</th>
-                        <th style="width: 18%;">Hành Động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($customers as $cust): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($cust['id']); ?></td>
-                        <td><?php echo htmlspecialchars($cust['name']); ?></td>
-                        <td><?php echo htmlspecialchars($cust['email']); ?></td>
-                        <td><?php echo htmlspecialchars($cust['phone']); ?></td>
-                        <td><?php echo htmlspecialchars($cust['city']); ?></td>
-                        <td>
-                            <span class="status <?php echo $cust['status'] == 1 ? 'active' : 'inactive'; ?>">
-                                <?php echo $cust['status'] == 1 ? 'Hoạt động' : 'Khóa'; ?>
-                            </span>
-                        </td>
-                        <td>
-                            <div class="actions">
-                                <a href="?act=customer-edit&id=<?php echo $cust['id']; ?>" class="btn btn-edit">Sửa</a>
-                                <a href="?act=customer-delete&id=<?php echo $cust['id']; ?>" class="btn btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa?');">Xóa</a>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+    <div class="sidebar">
+        <h2>Admin</h2>
+        <a href="?act=admin">Dashboard</a>
+        <a href="?act=tour-list">Quản lý Tour</a>
+        <a href="?act=guide-list">Quản lý HDV</a>
+        <a href="?act=category-list">Quản lý Danh Mục</a>
+        <a href="?act=departure-list">Lịch Khởi Hành</a>
+        <a href="?act=customer-list" class="active">Khách Hàng</a>
+        <a href="?act=booking-list">Quản lý Booking</a>
+        <a href="#">Báo cáo</a>
     </div>
-</div>
+
+    <div class="content">
+        <div class="card">
+            <h2>Danh Sách Khách Hàng</h2>
+
+            <a href="?act=customer-add" class="btn">+ Thêm Khách Hàng</a>
+
+            <br><br>
+
+            <?php if (empty($customers)): ?>
+                <div class="empty">
+                    <p>Chưa có khách hàng nào. <a href="?act=customer-add">Thêm khách hàng mới</a></p>
+                </div>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">ID</th>
+                            <th style="width: 15%;">Tên</th>
+                            <th style="width: 18%;">Email</th>
+                            <th style="width: 12%;">Điện Thoại</th>
+                            <th style="width: 15%;">Thành Phố</th>
+                            <th style="width: 10%;">Trạng Thái</th>
+                            <th style="width: 18%;">Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($customers as $cust): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($cust['id']); ?></td>
+                                <td><?php echo htmlspecialchars($cust['name']); ?></td>
+                                <td><?php echo htmlspecialchars($cust['email']); ?></td>
+                                <td><?php echo htmlspecialchars($cust['phone']); ?></td>
+                                <td><?php echo htmlspecialchars($cust['city']); ?></td>
+                                <td>
+                                    <span class="status <?php echo $cust['status'] == 1 ? 'active' : 'inactive'; ?>">
+                                        <?php echo $cust['status'] == 1 ? 'Hoạt động' : 'Khóa'; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="actions">
+                                        <a href="?act=customer-edit&id=<?php echo $cust['id']; ?>" class="btn btn-edit">Sửa</a>
+                                        <a href="?act=customer-delete&id=<?php echo $cust['id']; ?>" class="btn btn-danger"
+                                            onclick="return confirm('Bạn chắc chắn muốn xóa?');">Xóa</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    </div>
 
 </body>
+
 </html>

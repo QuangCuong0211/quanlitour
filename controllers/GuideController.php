@@ -1,169 +1,119 @@
 <?php
-require_once "models/GuideModel.php";
+class GuideController
+{
+    public $modelGuide;
 
-class GuideController {
-
-    // Danh sách HDV
-    public function guideList() {
-        $search = $_GET['search'] ?? '';
-        $guides = GuideModel::getGuides($search);
-        require "views/guide/list.php";
+    public function __construct()
+    {
+        $this->modelGuide = new GuideModel();
     }
 
-    // Trang thêm HDV
-    public function guideAdd() {
-        require "views/guide/add.php";
+    // Hiển thị danh sách khách hàng
+    public function guideList()
+    {
+        $guides = $this->modelGuide->getAllGuides();
+        require_once './views/guide/list.php';
     }
 
-    // Xử lý thêm HDV
-    public function guideSave() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $name = $_POST['name'] ?? '';
-            $email = $_POST['email'] ?? '';
-            $phone = $_POST['phone'] ?? '';
-            $password = $_POST['password'] ?? '';
-
-            if (empty($name) || empty($email) || empty($phone) || empty($password)) {
-                $_SESSION['error'] = 'Vui lòng điền đầy đủ thông tin!';
-                header('Location: ?act=guide-add');
-                exit;
-            }
-
-            // Kiểm tra email đã tồn tại
-            $existing = pdo_query_one("SELECT id FROM users WHERE email = ?", $email);
-            if ($existing) {
-                $_SESSION['error'] = 'Email đã tồn tại trong hệ thống!';
-                header('Location: ?act=guide-add');
-                exit;
-            }
-
-            if (GuideModel::createGuide($name, $email, $phone, $password)) {
-                $_SESSION['success'] = 'Thêm hướng dẫn viên thành công!';
-                header('Location: ?act=guide-list');
-            } else {
-                $_SESSION['error'] = 'Lỗi khi thêm hướng dẫn viên!';
-                header('Location: ?act=guide-add');
-            }
-            exit;
-        }
+    // Hiển thị form thêm khách hàng
+    public function guideAdd()
+    {
+        require_once './views/guide/add.php';
     }
 
-    // Trang sửa HDV
-    public function guideEdit() {
-        $id = $_GET['id'] ?? null;
-        if (!$id) {
-            $_SESSION['error'] = 'ID không hợp lệ!';
-            header('Location: ?act=guide-list');
-            exit;
+    // Lưu khách hàng mới
+    public function GuideSave()
+    {
+        if (empty($_POST['name']) || empty($_POST['email']) || empty($_POST['sdt']) || empty($_POST['img']) || empty($_POST['exp']) || empty($_POST['language'])) {
+            $_SESSION['error'] = "Vui lòng điền đầy đủ thông tin bắt buộc!";
+            header("Location: ?act=guide-add");
+            exit();
         }
 
-        $guide = GuideModel::findGuide($id);
-        if (!$guide) {
-            $_SESSION['error'] = 'Hướng dẫn viên không tồn tại!';
-            header('Location: ?act=guide-list');
-            exit;
+        $name = trim($_POST['name']);
+        $email = trim($_POST['email']);
+        $img = trim($_POST['img']);
+        $sdt = trim($_POST['sdt']);
+        $exp = trim($_POST['exp']);
+        $language = trim($_POST['language']);
+       
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error'] = "Email không hợp lệ!";
+            header("Location: ?act=guide-add");
+            exit();
         }
 
-        require "views/guide/edit.php";
-    }
-
-    // Xử lý sửa HDV
-    public function guideUpdate() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $id = $_POST['id'] ?? null;
-            $name = $_POST['name'] ?? '';
-            $email = $_POST['email'] ?? '';
-            $phone = $_POST['phone'] ?? '';
-            $new_password = $_POST['new_password'] ?? '';
-
-            if (!$id || empty($name) || empty($email) || empty($phone)) {
-                $_SESSION['error'] = 'Thông tin không hợp lệ!';
-                header('Location: ?act=guide-list');
-                exit;
-            }
-
-            $guide = GuideModel::findGuide($id);
-            if (!$guide) {
-                $_SESSION['error'] = 'Hướng dẫn viên không tồn tại!';
-                header('Location: ?act=guide-list');
-                exit;
-            }
-
-            // Kiểm tra email trùng với người khác
-            $existing = pdo_query_one("SELECT id FROM users WHERE email = ? AND id != ?", $email, $id);
-            if ($existing) {
-                $_SESSION['error'] = 'Email đã tồn tại trong hệ thống!';
-                header('Location: ?act=guide-edit&id=' . $id);
-                exit;
-            }
-
-            if (GuideModel::updateGuide($id, $name, $email, $phone)) {
-                // Nếu có nhập mật khẩu mới
-                if (!empty($new_password)) {
-                    GuideModel::changePassword($id, $new_password);
-                }
-
-                $_SESSION['success'] = 'Cập nhật hướng dẫn viên thành công!';
-                header('Location: ?act=guide-list');
-            } else {
-                $_SESSION['error'] = 'Lỗi khi cập nhật hướng dẫn viên!';
-                header('Location: ?act=guide-edit&id=' . $id);
-            }
-            exit;
-        }
-    }
-
-    // Khóa/Mở tài khoản HDV
-    public function guideToggleStatus() {
-        $id = $_GET['id'] ?? null;
-        if (!$id) {
-            $_SESSION['error'] = 'ID không hợp lệ!';
-            header('Location: ?act=guide-list');
-            exit;
-        }
-
-        $guide = GuideModel::findGuide($id);
-        if (!$guide) {
-            $_SESSION['error'] = 'Hướng dẫn viên không tồn tại!';
-            header('Location: ?act=guide-list');
-            exit;
-        }
-
-        if (GuideModel::toggleStatus($id)) {
-            $status = $guide['status'] ? 'khóa' : 'mở khóa';
-            $_SESSION['success'] = 'Tài khoản đã được ' . $status . ' thành công!';
+        if ($this->modelGuide->insertGuide($name, $email, $sdt,$img , $exp, $language)) {
+            $_SESSION['success'] = "Thêm hdv thành công!";
         } else {
-            $_SESSION['error'] = 'Lỗi khi thay đổi trạng thái tài khoản!';
+            $_SESSION['error'] = "Thêm hdv thất bại!";
         }
 
-        header('Location: ?act=guide-list');
-        exit;
+        header("Location: ?act=guide-list");
+        exit();
     }
 
-    // Xóa HDV
-    public function guideDelete() {
-        $id = $_GET['id'] ?? null;
-        if (!$id) {
-            $_SESSION['error'] = 'ID không hợp lệ!';
-            header('Location: ?act=guide-list');
-            exit;
-        }
+    // Hiển thị form chỉnh sửa khách hàng
+    public function guideEdit()
+    {
+        $id = $_GET['id'] ?? 0;
+        $guide = $this->modelGuide->getGuideById($id);
 
-        $guide = GuideModel::findGuide($id);
         if (!$guide) {
-            $_SESSION['error'] = 'Hướng dẫn viên không tồn tại!';
-            header('Location: ?act=guide-list');
-            exit;
+            $_SESSION['error'] = "hdv không tồn tại!";
+            header("Location: ?act=guide-list");
+            exit();
         }
 
-        if (GuideModel::deleteGuide($id)) {
-            $_SESSION['success'] = 'Xóa hướng dẫn viên thành công!';
+        require_once './views/guide/edit.php';
+    }
+
+    
+    public function guideUpdate()
+    {
+        $id = intval($_POST['id']);
+        $name = trim($_POST['name']);
+        $email = trim($_POST['email']);
+        $sdt = trim($_POST['sdt']);
+        $img = trim($_POST['img']);
+        $exp = trim($_POST['exp']);
+        $language = trim($_POST['language']);
+
+        if ($id <= 0 || empty($name) || empty($email) || empty($sdt) || empty($img) || empty($exp) || empty($language)) {
+            $_SESSION['error'] = "Dữ liệu không hợp lệ!";
+            header("Location: ?act=guide-edit&id=$id");
+            exit();
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error'] = "Email không hợp lệ!";
+            header("Location: ?act=guide-edit&id=$id");
+            exit();
+        }
+
+        if ($this->modelGuide->updateGuide($id, $name, $email,  $sdt,$img, $exp, $language)) {
+            $_SESSION['success'] = "Cập nhật hdv thành công!";
         } else {
-            $_SESSION['error'] = 'Lỗi khi xóa hướng dẫn viên!';
+            $_SESSION['error'] = "Cập nhật hdv thất bại!";
         }
 
-        header('Location: ?act=guide-list');
-        exit;
+        header("Location: ?act=guide-list");
+        exit();
+    }
+
+    // Xóa khách hàng
+    public function guideDelete()
+    {
+        $id = intval($_GET['id']);
+
+        if ($this->modelGuide->deleteGuide($id)) {
+            $_SESSION['success'] = "Xóa hdv thành công!";
+        } else {
+            $_SESSION['error'] = "Xóa hdv thất bại!";
+        }
+
+        header("Location: ?act=guide-list");
+        exit();
     }
 }
-?>
