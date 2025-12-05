@@ -47,7 +47,7 @@ class BookingController
             "total_price"   => $_POST['total_price'],
             "start_date"    => $_POST['start_date'],
             "end_date"      => $_POST['end_date'],
-            "note"          => $_POST['note'],
+            "note"          => $_POST['note']
         ];
 
         if ($this->bookingModel->insert($data)) {
@@ -94,6 +94,24 @@ class BookingController
             $_SESSION['success'] = "Cập nhật booking thành công!";
         } else {
             $_SESSION['error'] = "Cập nhật booking thất bại!";
+        }
+
+        header("Location: ?act=booking-list");
+        exit();
+    }
+
+    // =============================
+    // ĐỔI TRẠNG THÁI BOOKING
+    // =============================
+    public function changeStatus()
+    {
+        $id = $_POST['id'];
+        $status = $_POST['status'];
+
+        if ($this->bookingModel->changeStatus($id, $status)) {
+            $_SESSION['success'] = "Cập nhật trạng thái thành công!";
+        } else {
+            $_SESSION['error'] = "Không thể cập nhật trạng thái!";
         }
 
         header("Location: ?act=booking-list");

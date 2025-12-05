@@ -37,8 +37,8 @@ class BookingModel
     {
         $sql = "INSERT INTO bookings 
             (tour_id, booking_code, customer_name, phone, email, 
-             adult, child, total_price, start_date, end_date, note)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+             adult, child, total_price, start_date, end_date, note, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -81,6 +81,38 @@ class BookingModel
             $data['note'],
             $data['id']
         ]);
+    }
+
+    /* =========================
+       ĐỔI TRẠNG THÁI
+    ========================== */
+    public function changeStatus($id, $newStatus)
+    {
+        // Lấy status cũ
+        $old = $this->getOne($id);
+        $oldStatus = $old['status'];
+
+        // Cập nhật trạng thái
+        $sql = "UPDATE bookings SET status = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $result = $stmt->execute([$newStatus, $id]);
+
+        if ($result) {
+            $this->logStatus($id, $oldStatus, $newStatus);
+        }
+
+        return $result;
+    }
+
+    /* =========================
+       LƯU LỊCH SỬ TRẠNG THÁI
+    ========================== */
+    private function logStatus($bookingId, $old, $new)
+    {
+        $sql = "INSERT INTO booking_status_logs (booking_id, old_status, new_status) 
+                VALUES (?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([$bookingId, $old, $new]);
     }
 
     /* =========================
