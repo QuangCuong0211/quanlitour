@@ -1,114 +1,88 @@
 <?php
-require_once '../models/TourModel.php';
+require_once "models/TourModel.php";
 
-$model = new TourModel();
+$id = $_GET['id'] ?? null;
+if (!$id) die("Thiếu ID tour!");
 
-// Lấy ID từ URL
-if (!isset($_GET['id']) || $_GET['id'] <= 0) {
-    die("ID không hợp lệ");
-}
+$tourModel = new TourModel();
+$tour = $tourModel->getTourById($id);
 
-$id = $_GET['id'];
+if (!$tour) die("Tour không tồn tại!");
 
-// Lấy dữ liệu tour
-$tour = $model->getTourById($id);
-if (!$tour) {
-    die("Tour không tồn tại");
-}
-
-$errors = [];
-$success = "";
-
-// Nếu submit form
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    // Lấy dữ liệu từ POST để giữ lại nếu sai
-    $name  = trim($_POST['name'] ?? '');
-    $desc  = trim($_POST['description'] ?? '');
-    $price = trim($_POST['price'] ?? '');
-
-    // Validate
-    if ($name === "") {
-        $errors['name'] = "Tên tour không được để trống";
-    }
-    if ($desc === "") {
-        $errors['description'] = "Mô tả không được để trống";
-    }
-    if ($price === "") {
-        $errors['price'] = "Giá không được để trống";
-    } elseif (!is_numeric($price) || $price <= 0) {
-        $errors['price'] = "Giá phải là số lớn hơn 0";
-    }
-
-    // Nếu không có lỗi → cập nhật
-    if (empty($errors)) {
-        $result = $model->updateTour($id, $name, $desc, (float)$price);
-
-        if ($result['status'] === 'updated') {
-            $success = "Cập nhật thành công!";
-            // Cập nhật lại dữ liệu để hiển thị đúng
-            $tour = $model->getTourById($id);
-        } elseif ($result['status'] === 'nochange') {
-            $success = "Không có thay đổi nào!";
-        } else {
-            $errors['system'] = "Lỗi hệ thống: " . $result['message'];
-        }
-    }
-}
-
-// Nếu chưa submit → gán dữ liệu gốc từ DB
-$nameValue  = $_POST['name']         ?? $tour['name'];
-$descValue  = $_POST['description']  ?? $tour['description'];
-$priceValue = $_POST['price']        ?? $tour['price'];
-
+// Map dữ liệu theo đúng tên cột trong DB
+$tour_id        = $tour['tour_id'] ?? "";
+$name           = $tour['name'] ?? "";
+$description    = $tour['description'] ?? "";
+$departure_date = $tour['departure_date'] ?? "";
+$price          = $tour['price'] ?? "";
+$customer       = $tour['customer'] ?? "";
+$guide          = $tour['guide'] ?? "";
+$status         = $tour['status'] ?? 1;
+$note           = $tour['note'] ?? "";
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sửa Tour</title>
-    <style>
-        .error { color: red; font-size: 14px; }
-        .success { color: green; font-size: 16px; }
-    </style>
-</head>
-<body>
+<?php include_once "views/header.php"; ?>
 
-<h2>Sửa tour</h2>
+<div class="container mt-4">
+    <h3 class="mb-3">Sửa Tour</h3>
 
-<?php if ($success): ?>
-    <p class="success"><?= $success ?></p>
-<?php endif; ?>
+    <form action="../../index.php?action=tourUpdate" method="POST" class="row g-3">
 
-<?php if (isset($errors['system'])): ?>
-    <p class="error"><?= $errors['system'] ?></p>
-<?php endif; ?>
+        <div class="col-md-6">
+            <label class="form-label">Mã Tour *</label>
+            <input type="text" name="tour_id" class="form-control" value="<?= $tour_id ?>" required>
+        </div>
 
-<form method="POST">
+        <div class="col-md-6">
+            <label class="form-label">Tên Tour *</label>
+            <input type="text" name="name" class="form-control" value="<?= $name ?>" required>
+        </div>
 
-    <label>Tên tour:</label><br>
-    <input type="text" name="name" value="<?= htmlspecialchars($nameValue) ?>"><br>
-    <?php if (isset($errors['name'])): ?>
-        <span class="error"><?= $errors['name'] ?></span><br>
-    <?php endif; ?>
-    <br>
+        <div class="col-md-6">
+            <label class="form-label">Ngày đi *</label>
+            <input type="date" name="departure_date" class="form-control" value="<?= $departure_date ?>" required>
+        </div>
 
-    <label>Mô tả:</label><br>
-    <textarea name="description" rows="4"><?= htmlspecialchars($descValue) ?></textarea><br>
-    <?php if (isset($errors['description'])): ?>
-        <span class="error"><?= $errors['description'] ?></span><br>
-    <?php endif; ?>
-    <br>
+        <div class="col-md-6">
+            <label class="form-label">Giá *</label>
+            <input type="number" name="price" class="form-control" value="<?= $price ?>" required>
+        </div>
 
-    <label>Giá:</label><br>
-    <input type="text" name="price" value="<?= htmlspecialchars($priceValue) ?>"><br>
-    <?php if (isset($errors['price'])): ?>
-        <span class="error"><?= $errors['price'] ?></span><br>
-    <?php endif; ?>
+        <div class="col-md-6">
+            <label class="form-label">Khách Hàng *</label>
+            <input type="text" name="customer" class="form-control" value="<?= $customer ?>" required>
+        </div>
 
-    <br><br>
-    <button type="submit">Cập nhật</button>
-</form>
+        <div class="col-md-6">
+            <label class="form-label">Hướng Dẫn Viên *</label>
+            <input type="text" name="guide" class="form-control" value="<?= $guide ?>" required>
+        </div>
 
-</body>
-</html>
+        <div class="col-md-6">
+            <label class="form-label">Trạng Thái *</label>
+            <select name="status" class="form-select">
+                <option value="1" <?= $status == 1 ? "selected" : "" ?>>Hoạt động</option>
+                <option value="0" <?= $status == 0 ? "selected" : "" ?>>Ngừng hoạt động</option>
+            </select>
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label">Ghi chú</label>
+            <textarea name="note" class="form-control" rows="3"><?= $note ?></textarea>
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label">Mô Tả *</label>
+            <textarea name="description" class="form-control" rows="5" required><?= $description ?></textarea>
+        </div>
+
+        <input type="hidden" name="id" value="<?= $tour['id'] ?>">
+
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a href="../../index.php?action=tourList" class="btn btn-secondary">Hủy</a>
+        </div>
+    </form>
+</div>
+
+<?php include_once "views/footer.php"; ?>
