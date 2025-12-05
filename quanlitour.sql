@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost:3306
--- Thời gian đã tạo: Th12 04, 2025 lúc 06:08 AM
+-- Thời gian đã tạo: Th12 05, 2025 lúc 08:19 AM
 -- Phiên bản máy phục vụ: 8.0.30
 -- Phiên bản PHP: 8.1.10
 
@@ -65,7 +65,47 @@ CREATE TABLE `bookings` (
 INSERT INTO `bookings` (`id`, `booking_code`, `tour_id`, `tour_name`, `start_date`, `end_date`, `departure`, `tour_type`, `slot`, `customer_name`, `gender`, `phone`, `email`, `address`, `identity_number`, `adult`, `child`, `baby`, `special_request`, `total_price`, `deposit`, `payment_method`, `payment_date`, `booking_date`, `staff`, `status`, `channel`, `note`) VALUES
 (10, 'BK-2025-94543', '4', NULL, '2025-11-29', '2025-12-02', NULL, NULL, NULL, 'Quang Cường', NULL, '0369813955', 'assss@gmail.com', NULL, NULL, 4, 1, NULL, NULL, 1645000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'chill'),
 (14, 'BK-2025-21522', '6', NULL, '2025-11-29', '2025-11-04', NULL, NULL, NULL, 'Quang Cường', NULL, '0369813955', 'assss@gmail.com', NULL, NULL, 15, 0, NULL, NULL, 1800000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'k'),
-(15, 'BK-2025-99765', '6', NULL, '2025-11-22', '2025-11-23', NULL, NULL, NULL, 'Quang Cường', NULL, '0369813955', 'assss@gmail.com', NULL, NULL, 1, 0, NULL, NULL, 120000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'aaaa');
+(15, 'BK-2025-99765', '6', NULL, '2025-11-22', '2025-11-23', NULL, NULL, NULL, 'Quang Cường', NULL, '0369813955', 'assss@gmail.com', NULL, NULL, 1, 0, NULL, NULL, 120000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'aaaa'),
+(16, 'BK-2025-49903', '13', NULL, '2025-12-02', '2025-12-06', NULL, NULL, NULL, 'Quang Cường', NULL, '0369813955', 'assss@gmail.com', NULL, NULL, 20, 2, NULL, NULL, 214000.00, NULL, NULL, NULL, NULL, NULL, 'done', NULL, '');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `booking_status_history`
+--
+
+CREATE TABLE `booking_status_history` (
+  `id` int NOT NULL,
+  `booking_id` int NOT NULL,
+  `old_status` varchar(20) DEFAULT NULL,
+  `new_status` varchar(20) DEFAULT NULL,
+  `changed_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `note` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `booking_status_logs`
+--
+
+CREATE TABLE `booking_status_logs` (
+  `id` int NOT NULL,
+  `booking_id` int NOT NULL,
+  `old_status` varchar(20) DEFAULT NULL,
+  `new_status` varchar(20) DEFAULT NULL,
+  `changed_at` datetime DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `booking_status_logs`
+--
+
+INSERT INTO `booking_status_logs` (`id`, `booking_id`, `old_status`, `new_status`, `changed_at`) VALUES
+(1, 16, NULL, 'pending', '2025-12-05 15:17:11'),
+(2, 16, 'pending', 'done', '2025-12-05 15:17:15'),
+(3, 16, 'done', 'cancel', '2025-12-05 15:17:47'),
+(4, 16, 'cancel', 'done', '2025-12-05 15:17:50');
 
 -- --------------------------------------------------------
 
@@ -143,8 +183,19 @@ CREATE TABLE `guide` (
   `phone` varchar(20) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `status` tinyint DEFAULT '1',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `sdt` varchar(20) DEFAULT NULL,
+  `img` varchar(255) DEFAULT NULL,
+  `exp` varchar(255) DEFAULT NULL,
+  `language` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `guide`
+--
+
+INSERT INTO `guide` (`id`, `name`, `phone`, `email`, `status`, `created_at`, `sdt`, `img`, `exp`, `language`) VALUES
+(11, 'cuong', NULL, 'assss@gmail.com', 1, '2025-12-04 07:21:07', '123', 'hdv3.jpg', 'chưa làm baoh', 'anh hàn');
 
 -- --------------------------------------------------------
 
@@ -213,6 +264,19 @@ ALTER TABLE `bookings`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Chỉ mục cho bảng `booking_status_history`
+--
+ALTER TABLE `booking_status_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `booking_id` (`booking_id`);
+
+--
+-- Chỉ mục cho bảng `booking_status_logs`
+--
+ALTER TABLE `booking_status_logs`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Chỉ mục cho bảng `categories`
 --
 ALTER TABLE `categories`
@@ -271,7 +335,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT cho bảng `booking_status_history`
+--
+ALTER TABLE `booking_status_history`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT cho bảng `booking_status_logs`
+--
+ALTER TABLE `booking_status_logs`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT cho bảng `categories`
@@ -295,7 +371,7 @@ ALTER TABLE `departures`
 -- AUTO_INCREMENT cho bảng `guide`
 --
 ALTER TABLE `guide`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT cho bảng `tours`
@@ -312,6 +388,12 @@ ALTER TABLE `users`
 --
 -- Các ràng buộc cho các bảng đã đổ
 --
+
+--
+-- Các ràng buộc cho bảng `booking_status_history`
+--
+ALTER TABLE `booking_status_history`
+  ADD CONSTRAINT `booking_status_history_ibfk_1` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`);
 
 --
 -- Các ràng buộc cho bảng `departures`
