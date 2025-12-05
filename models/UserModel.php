@@ -1,6 +1,4 @@
 <?php
-require_once "commons/env.php";
-
 class UserModel {
 
     // Lấy tất cả user

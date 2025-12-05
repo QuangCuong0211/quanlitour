@@ -32,9 +32,62 @@ $customerController = new CustomerController();
 $guideController = new GuideController();
 $reviewController = new ReviewController();
 
+// ==================== XỬ LÝ ĐĂNG NHẬP ====================
+if ($act === 'login') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        $user = pdo_query_one("SELECT * FROM users WHERE email = ?", $email);
+
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['user_name'] = $user['fullname'];           // ←←←← SỬA DÒNG NÀY
+            $_SESSION['user_role'] = $user['role'];
+
+            $_SESSION['success'] = "Chào mừng {$user['fullname']} quay lại!";
+            header("Location: index.php?act=admin");
+            exit;
+        } else {
+            $_SESSION['error'] = "Email hoặc mật khẩu không đúng!";
+        }
+    }
+    require "views/auth/login.php";
+    exit;
+}
+
+// ==================== XỬ LÝ ĐĂNG XUẤT ====================
+if ($act === 'logout') {
+    session_destroy();
+    header("Location: index.php?act=login");
+    exit;
+}
+
+// ==================== BẢO VỆ TRANG ADMIN ====================
+$protected_routes = [
+    'admin', 'guide-list', 'guide-add', 'guide-save', 'guide-edit', 'guide-update', 'guide-delete',
+    'tour-list', 'tour-add', 'tour-save', 'tour-edit', 'tour-update', 'tour-delete',
+    'booking-list', 'booking-add', 'booking-save', 'booking-edit', 'booking-update', 'booking-delete', 'booking-change-status',
+    'category-list', 'category-add', 'category-save', 'category-edit', 'category-update', 'category-delete',
+    'departure-list', 'departure-add', 'departure-save', 'departure-edit', 'departure-update', 'departure-delete',
+    'customer-list', 'customer-add', 'customer-save', 'customer-edit', 'customer-update', 'customer-delete',
+    'review-list'
+];
+
+if (in_array($act, $protected_routes) && empty($_SESSION['user_id'])) {
+    $_SESSION['error'] = "Vui lòng đăng nhập để truy cập!";
+    header("Location: index.php?act=login");
+    exit;
+}
+
+// ==================== DANH SÁCH ROUTE ====================
 $routes = [
     '/' => ['controller' => $tourController, 'method' => 'Home'],
     'admin' => ['controller' => $tourController, 'method' => 'Admin'],
+
+    // AUTH
+    'login' => ['controller' => null, 'method' => null],
+    'logout' => ['controller' => null, 'method' => null],
 
     // GUIDE
     'guide-list' => ['controller' => $guideController, 'method' => 'guideList'],
