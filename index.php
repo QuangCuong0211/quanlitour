@@ -21,6 +21,7 @@ require_once './controllers/DepartureController.php';
 require_once './controllers/CustomerController.php';
 require_once './controllers/GuideController.php';
 require_once './controllers/ReviewController.php';
+require_once './controllers/CheckinController.php';
 
 $act = $_GET['act'] ?? '/';
 
@@ -31,6 +32,7 @@ $departureController = new DepartureController();
 $customerController = new CustomerController();
 $guideController = new GuideController();
 $reviewController = new ReviewController();
+$checkinController = new CheckinController();
 
 // ==================== XỬ LÝ ĐĂNG NHẬP ====================
 if ($act === 'login') {
@@ -78,7 +80,7 @@ if ($act === 'logout') {
 $protected_routes = [
     'admin', 'guide-list', 'guide-add', 'guide-save', 'guide-edit', 'guide-update', 'guide-delete',
     'tour-list', 'tour-add', 'tour-save', 'tour-edit', 'tour-update', 'tour-delete',
-    'booking-list', 'booking-add', 'booking-save', 'booking-edit', 'booking-update', 'booking-delete', 'booking-change-status',
+    'booking-list', 'booking-add', 'booking-save', 'booking-edit', 'booking-update', 'booking-delete', 'booking-change-status', 'checkin', 'checkin-save', 'checkin-bulk-save',
     'category-list', 'category-add', 'category-save', 'category-edit', 'category-update', 'category-delete',
     'departure-list', 'departure-add', 'departure-save', 'departure-edit', 'departure-update', 'departure-delete',
     'customer-list', 'customer-add', 'customer-save', 'customer-edit', 'customer-update', 'customer-delete',
@@ -139,6 +141,9 @@ $routes = [
     'booking-update' => ['controller' => $bookingController, 'method' => 'update'],
     'booking-delete' => ['controller' => $bookingController, 'method' => 'delete'],
     'booking-change-status' => ['controller' => $bookingController, 'method' => 'changeStatus'],
+    'checkin' => ['controller' => $checkinController, 'method' => 'show'],
+    'checkin-save' => ['controller' => $checkinController, 'method' => 'upsert'],
+    'checkin-bulk-save' => ['controller' => $checkinController, 'method' => 'bulkUpdate'],
 
     // CATEGORY
     'category-list' => ['controller' => $categoryController, 'method' => 'categoryList'],
