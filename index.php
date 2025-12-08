@@ -85,14 +85,14 @@ $protected_routes = [
     'review-list'
 ];
 
-$admin_only_routes = [
-    'admin', 'guide-list', 'guide-add', 'guide-save', 'guide-edit', 'guide-update', 'guide-delete',
-    'tour-list', 'tour-add', 'tour-save', 'tour-edit', 'tour-update', 'tour-delete',
-    'category-list', 'category-add', 'category-save', 'category-edit', 'category-update', 'category-delete',
-    'departure-list', 'departure-add', 'departure-save', 'departure-edit', 'departure-update', 'departure-delete',
-    'customer-list', 'customer-add', 'customer-save', 'customer-edit', 'customer-update', 'customer-delete',
-    'review-list'
-];
+// $admin_only_routes = [
+//     'admin', 'guide-list', 'guide-add', 'guide-save', 'guide-edit', 'guide-update', 'guide-delete',
+//     'tour-list', 'tour-add', 'tour-save', 'tour-edit', 'tour-update', 'tour-delete',
+//     'category-list', 'category-add', 'category-save', 'category-edit', 'category-update', 'category-delete',
+//     'departure-list', 'departure-add', 'departure-save', 'departure-edit', 'departure-update', 'departure-delete',
+//     'customer-list', 'customer-add', 'customer-save', 'customer-edit', 'customer-update', 'customer-delete',
+//     'review-list'
+// ];
 
 if (in_array($act, $protected_routes) && empty($_SESSION['user_id'])) {
     $_SESSION['error'] = "Vui lòng đăng nhập để truy cập!";
@@ -100,11 +100,11 @@ if (in_array($act, $protected_routes) && empty($_SESSION['user_id'])) {
     exit;
 }
 
-if (in_array($act, $admin_only_routes) && ($_SESSION['user_role'] ?? '') !== 'admin') {
-    $_SESSION['error'] = 'Bạn cần quyền admin để truy cập phần này.';
-    header('Location: index.php?act=booking-list');
-    exit;
-}
+// if (in_array($act, $admin_only_routes) && ($_SESSION['user_role'] ?? '') !== 'admin') {
+//     $_SESSION['error'] = 'Bạn cần quyền admin để truy cập phần này.';
+//     header('Location: index.php?act=booking-list');
+//     exit;
+// }
 
 // ==================== DANH SÁCH ROUTE ====================
 $routes = [
