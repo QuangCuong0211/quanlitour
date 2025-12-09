@@ -53,7 +53,6 @@ flash('error');
         .note-cell { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .badge.bg-primary { background: #3b82f6 !important; }
         .text-danger.fw-bold { color: #dc3545 !important; }
-    }
     </style>
 </head>
 <body>
@@ -99,6 +98,7 @@ flash('error');
                         <th>Ghi chú</th>
                         <th class="text-center">Trạng thái</th>
                         <th class="text-center">Hành động</th>
+                        <th class="text-center">Check-in</th>
                     </tr>
                 </thead>
 
@@ -150,11 +150,14 @@ flash('error');
                                         Xóa
                                     </a>
                                 </td>
+                                <td class="text-center">
+                                    <a href="?act=checkin&booking_id=<?= $item['id']; ?>" class="btn btn-info btn-sm">Điểm danh</a>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="13" class="text-center text-muted py-5">Chưa có booking nào!</td>
+                            <td colspan="14" class="text-center text-muted py-5">Chưa có booking nào!</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

@@ -21,6 +21,7 @@ require_once './controllers/DepartureController.php';
 require_once './controllers/CustomerController.php';
 require_once './controllers/GuideController.php';
 require_once './controllers/ReviewController.php';
+require_once './controllers/CheckinController.php';
 
 $act = $_GET['act'] ?? '/';
 
@@ -31,6 +32,7 @@ $departureController = new DepartureController();
 $customerController = new CustomerController();
 $guideController = new GuideController();
 $reviewController = new ReviewController();
+$checkinController = new CheckinController();
 
 // ==================== XỬ LÝ ĐĂNG NHẬP ====================
 if ($act === 'login') {
@@ -39,18 +41,29 @@ if ($act === 'login') {
         $password = $_POST['password'] ?? '';
 
         $user = pdo_query_one("SELECT * FROM users WHERE email = ?", $email);
+        $hash = $user['password'] ?? '';
+        $valid = false;
 
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id']   = $user['id'];
-            $_SESSION['user_name'] = $user['fullname'];           // ←←←← SỬA DÒNG NÀY
-            $_SESSION['user_role'] = $user['role'];
-
-            $_SESSION['success'] = "Chào mừng {$user['fullname']} quay lại!";
-            header("Location: index.php?act=admin");
-            exit;
-        } else {
-            $_SESSION['error'] = "Email hoặc mật khẩu không đúng!";
+        if ($hash) {
+            if (str_starts_with($hash, '$2y$') || str_starts_with($hash, '$argon2')) {
+                $valid = password_verify($password, $hash);
+            } else {
+                $valid = md5($password) === $hash;
+            }
         }
+
+        if ($user && $valid) {
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['user_name'] = $user['name'] ?? ($user['fullname'] ?? $user['email']);
+            $_SESSION['user_role'] = $user['role'];
+            $_SESSION['success'] = "Chào mừng {$_SESSION['user_name']}!";
+
+            $redirect = $user['role'] === 'hdv' ? 'booking-list' : 'admin';
+            header("Location: index.php?act={$redirect}");
+            exit;
+        }
+
+        $_SESSION['error'] = "Email hoặc mật khẩu không đúng!";
     }
     require "views/auth/login.php";
     exit;
@@ -67,18 +80,33 @@ if ($act === 'logout') {
 $protected_routes = [
     'admin', 'guide-list', 'guide-add', 'guide-save', 'guide-edit', 'guide-update', 'guide-delete',
     'tour-list', 'tour-add', 'tour-save', 'tour-edit', 'tour-update', 'tour-delete',
-    'booking-list', 'booking-add', 'booking-save', 'booking-edit', 'booking-update', 'booking-delete', 'booking-change-status',
+    'booking-list', 'booking-add', 'booking-save', 'booking-edit', 'booking-update', 'booking-delete', 'booking-change-status', 'checkin', 'checkin-save', 'checkin-bulk-save',
     'category-list', 'category-add', 'category-save', 'category-edit', 'category-update', 'category-delete',
     'departure-list', 'departure-add', 'departure-save', 'departure-edit', 'departure-update', 'departure-delete',
     'customer-list', 'customer-add', 'customer-save', 'customer-edit', 'customer-update', 'customer-delete',
     'review-list'
 ];
 
+// $admin_only_routes = [
+//     'admin', 'guide-list', 'guide-add', 'guide-save', 'guide-edit', 'guide-update', 'guide-delete',
+//     'tour-list', 'tour-add', 'tour-save', 'tour-edit', 'tour-update', 'tour-delete',
+//     'category-list', 'category-add', 'category-save', 'category-edit', 'category-update', 'category-delete',
+//     'departure-list', 'departure-add', 'departure-save', 'departure-edit', 'departure-update', 'departure-delete',
+//     'customer-list', 'customer-add', 'customer-save', 'customer-edit', 'customer-update', 'customer-delete',
+//     'review-list'
+// ];
+
 if (in_array($act, $protected_routes) && empty($_SESSION['user_id'])) {
     $_SESSION['error'] = "Vui lòng đăng nhập để truy cập!";
     header("Location: index.php?act=login");
     exit;
 }
+
+// if (in_array($act, $admin_only_routes) && ($_SESSION['user_role'] ?? '') !== 'admin') {
+//     $_SESSION['error'] = 'Bạn cần quyền admin để truy cập phần này.';
+//     header('Location: index.php?act=booking-list');
+//     exit;
+// }
 
 // ==================== DANH SÁCH ROUTE ====================
 $routes = [
@@ -113,6 +141,9 @@ $routes = [
     'booking-update' => ['controller' => $bookingController, 'method' => 'update'],
     'booking-delete' => ['controller' => $bookingController, 'method' => 'delete'],
     'booking-change-status' => ['controller' => $bookingController, 'method' => 'changeStatus'],
+    'checkin' => ['controller' => $checkinController, 'method' => 'show'],
+    'checkin-save' => ['controller' => $checkinController, 'method' => 'upsert'],
+    'checkin-bulk-save' => ['controller' => $checkinController, 'method' => 'bulkUpdate'],
 
     // CATEGORY
     'category-list' => ['controller' => $categoryController, 'method' => 'categoryList'],

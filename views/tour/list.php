@@ -78,7 +78,7 @@ flash('error');
         .btn-add { background: #10b981; }
         .btn-add:hover { background: #059669; }
         .badge.bg-success { background: #10b981 !important; }
-        .badge.bg-secondary { background: #6b7280 !important;important; }
+        .badge.bg-secondary { background: #6b7280 !important; }
     </style>
 </head>
 <body>
