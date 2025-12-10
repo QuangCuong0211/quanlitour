@@ -53,7 +53,7 @@ flash('error');
         .note-cell { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .badge.bg-primary { background: #3b82f6 !important; }
         .text-danger.fw-bold { color: #dc3545 !important; }
-    }
+
     </style>
 </head>
 <body>
@@ -61,12 +61,12 @@ flash('error');
 <!-- SIDEBAR - giống hệt Quản lý HDV & Tour -->
 <div class="sidebar">
     <h2>Admin</h2>
-    <a href="?act=admin">Dashboard</a>
-    <a href="?act=tour-list">Quản lý Tour</a>
-    <a href="?act=guide-list">Quản lý HDV</a>
-    <a href="?act=category-list">Quản lý Danh Mục</a>
-    <a href="?act=customer-list">Khách Hàng</a>
-    <a href="?act=booking-list" class="active">Quản lý Booking</a>
+    <a href="?act=admin" ><i class="fas fa-home"></i> Dashboard</a>
+    <a href="?act=tour-list" ><i class="fas fa-map-marked-alt"></i> Quản lý Tour</a>
+    <a href="?act=guide-list" ><i class="fas fa-user-tie"></i> Quản lý HDV</a>
+    <a href="?act=booking-list" class="active"><i class="fas fa-calendar-check"></i> Quản lý Booking</a>
+    <a href="?act=category-list"><i class="fas fa-tags"></i> Danh mục</a>
+    <a href="?act=customer-list"><i class="fas fa-users"></i> Khách hàng</a>
 </div>
 
 <!-- NỘI DUNG CHÍNH -->

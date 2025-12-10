@@ -64,9 +64,9 @@ flash('error');
     <h2 style="text-align:center;margin:0 0 30px 0;">Admin</h2>
     <a href="?act=admin" ><i class="fas fa-home"></i> Dashboard</a>
     <a href="?act=tour-list" ><i class="fas fa-map-marked-alt"></i> Quản lý Tour</a>
-    <a href="?act=guide-list" class="active"><i class="fas fa-user-tie"></i> Quản lý HDV</a>
+    <a href="?act=guide-list" ><i class="fas fa-user-tie"></i> Quản lý HDV</a>
     <a href="?act=booking-list"><i class="fas fa-calendar-check"></i> Quản lý Booking</a>
-    <a href="?act=category-list"><i class="fas fa-tags"></i> Danh mục</a>
+    <a href="?act=category-list" class="active"><i class="fas fa-tags"></i> Danh mục</a>
     <a href="?act=customer-list"><i class="fas fa-users"></i> Khách hàng</a>
 </div>
 
