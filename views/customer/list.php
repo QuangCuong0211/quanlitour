@@ -173,12 +173,12 @@ if (isset($_SESSION['error'])) {
 
     <div class="sidebar">
         <h2>Admin</h2>
-        <a href="?act=admin">Dashboard</a>
-        <a href="?act=tour-list">Quản lý Tour</a>
-        <a href="?act=guide-list">Quản lý HDV</a>
-        <a href="?act=category-list">Quản lý Danh Mục</a>
-        <a href="?act=customer-list" class="active">Khách Hàng</a>
-        <a href="?act=booking-list">Quản lý Booking</a>
+    <a href="?act=admin" ><i class="fas fa-home"></i> Dashboard</a>
+    <a href="?act=tour-list" ><i class="fas fa-map-marked-alt"></i> Quản lý Tour</a>
+    <a href="?act=guide-list" ><i class="fas fa-user-tie"></i> Quản lý HDV</a>
+    <a href="?act=booking-list"><i class="fas fa-calendar-check"></i> Quản lý Booking</a>
+    <a href="?act=category-list"><i class="fas fa-tags"></i> Danh mục</a>
+    <a href="?act=customer-list" class="active"><i class="fas fa-users"></i> Khách hàng</a>
     </div>
 
     <div class="content">
