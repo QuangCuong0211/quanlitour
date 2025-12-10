@@ -158,22 +158,22 @@ if (isset($_SESSION['error'])) {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="form-group">
                     <label for="name">Tên Khách Hàng *</label>
-                    <input type="text" id="name" name="name" required placeholder="VD: Nguyễn Văn A">
+                    <input type="text" id="name" name="name"  placeholder="VD: Nguyễn Văn A">
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" required placeholder="VD: khachhang@gmail.com">
+                    <input type="email" id="email" name="email"  placeholder="VD: khachhang@gmail.com">
                 </div>
 
                 <div class="form-group">
                     <label for="phone">Số Điện Thoại *</label>
-                    <input type="text" id="phone" name="phone" required placeholder="VD: 0901234567">
+                    <input type="text" id="phone" name="phone"  placeholder="VD: 0901234567">
                 </div>
 
                 <div class="form-group">
                     <label for="city">Thành Phố *</label>
-                    <input type="text" id="city" name="city" required placeholder="VD: TP.HCM">
+                    <input type="text" id="city" name="city"  placeholder="VD: TP.HCM">
                 </div>
 
                 <div class="form-group">
@@ -192,7 +192,7 @@ if (isset($_SESSION['error'])) {
 
             <div class="form-group">
                 <label for="address">Địa Chỉ *</label>
-                <textarea id="address" name="address" required placeholder="Nhập địa chỉ đầy đủ..."></textarea>
+                <textarea id="address" name="address"  placeholder="Nhập địa chỉ đầy đủ..."></textarea>
             </div>
 
             <div class="form-actions">
