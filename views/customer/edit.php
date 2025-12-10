@@ -160,22 +160,22 @@ if (isset($_SESSION['error'])) {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="form-group">
                     <label for="name">Tên Khách Hàng *</label>
-                    <input type="text" id="name" name="name" required value="<?php echo htmlspecialchars($customer['name']); ?>">
+                    <input type="text" id="name" name="name"  value="<?php echo htmlspecialchars($customer['name']); ?>">
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" required value="<?php echo htmlspecialchars($customer['email']); ?>">
+                    <input type="email" id="email" name="email"  value="<?php echo htmlspecialchars($customer['email']); ?>">
                 </div>
 
                 <div class="form-group">
                     <label for="phone">Số Điện Thoại *</label>
-                    <input type="text" id="phone" name="phone" required value="<?php echo htmlspecialchars($customer['phone']); ?>">
+                    <input type="text" id="phone" name="phone"  value="<?php echo htmlspecialchars($customer['phone']); ?>">
                 </div>
 
                 <div class="form-group">
                     <label for="city">Thành Phố *</label>
-                    <input type="text" id="city" name="city" required value="<?php echo htmlspecialchars($customer['city']); ?>">
+                    <input type="text" id="city" name="city"  value="<?php echo htmlspecialchars($customer['city']); ?>">
                 </div>
 
                 <div class="form-group">
