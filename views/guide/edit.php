@@ -165,19 +165,19 @@ if (isset($_SESSION['error'])) {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
                         <label for="name">Tên hdv *</label>
-                        <input type="text" id="name" name="name" required
+                        <input type="text" id="name" name="name" 
                             value="<?php echo htmlspecialchars($guide['name']); ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" required
+                        <input type="email" id="email" name="email" 
                             value="<?php echo htmlspecialchars($guide['email']); ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="sdt">Số Điện Thoại *</label>
-                        <input type="text" id="sdt" name="sdt" required
+                        <input type="text" id="sdt" name="sdt" 
                             value="<?php echo htmlspecialchars($guide['sdt']); ?>">
                     </div>
                    
@@ -197,14 +197,14 @@ if (isset($_SESSION['error'])) {
                     </div>
                     <div class="form-group">
                         <label for="exp">Kinh Nghiệm *</label>
-                        <input type="text" id="exp" name="exp" required
+                        <input type="text" id="exp" name="exp" 
                             value="<?php echo htmlspecialchars($guide['exp']); ?>">
                     </div>
 
                     <div class="form-group">
                         <label for="language">Ngôn Ngữ *</label>
                         <textarea id="language" name="language"
-                            required><?php echo htmlspecialchars($guide['language']); ?></textarea>
+                            ><?php echo htmlspecialchars($guide['language']); ?></textarea>
                     </div>
 
                     <div class="form-actions">
