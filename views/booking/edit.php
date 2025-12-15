@@ -1,127 +1,229 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Sửa Booking</title>
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    
-</head>
+<?php
+// views/booking/edit.php
+// Biến có sẵn:
+// $booking   (bookings)
+// $customers (booking_customers)
+// $tours     (tours)
 
-<body class="py-4">
-<div class="container" style="max-width: 900px;">
+include_once __DIR__ . '/../layout/header.php';
+include_once __DIR__ . '/../layout/sidebar.php';
+?>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h2 class="mb-0">Sửa booking #<?= htmlspecialchars($booking['booking_code']); ?></h2>
-            <small class="text-muted">Cập nhật thông tin khách hàng và tour</small>
-        </div>
-        <a href="?act=booking-list" class="btn btn-outline-secondary">← Danh sách booking</a>
-    </div>
+<div class="container-fluid px-4">
+    <h3 class="mt-4 mb-4">Sửa Booking</h3>
 
-    <?php if (!empty($_SESSION['errors'])): ?>
+    <?php if (!empty($_SESSION['error'])): ?>
         <div class="alert alert-danger">
-            <?php foreach ($_SESSION['errors'] as $e): ?>
-                <div>- <?= htmlspecialchars($e) ?></div>
-            <?php endforeach; ?>
-            <?php unset($_SESSION['errors']); ?>
+            <?= $_SESSION['error']; unset($_SESSION['error']); ?>
         </div>
     <?php endif; ?>
 
-    <div class="card card-custom">
-        <div class="card-body p-4">
+    <?php if ($booking['status'] === 'done'): ?>
+        <div class="alert alert-info">
+            Booking đã <strong>HOÀN TẤT</strong> – không thể chỉnh sửa
+        </div>
+    <?php endif; ?>
 
-            <form action="?act=booking-update" method="POST" class="row g-3">
-                <input type="hidden" name="id" value="<?= $booking['id'] ?>">
+    <div class="card shadow-sm p-4">
+
+        <form action="?act=booking-update" method="POST" id="bookingForm">
+            <input type="hidden" name="id" value="<?= $booking['id'] ?>">
+
+            <!-- ================= DANH SÁCH KHÁCH ================= -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">
+                    Danh sách khách hàng <span class="text-danger">(tối thiểu 5)</span>
+                </label>
+
+                <div id="customer-list">
+
+                    <?php foreach ($customers as $index => $c): ?>
+                    <div class="row g-2 mb-2 customer-item">
+                        <div class="col-md-3">
+                            <input type="text" name="customer_name[]"
+                                   class="form-control"
+                                   value="<?= htmlspecialchars($c['name']) ?>" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="email" name="email[]"
+                                   class="form-control"
+                                   value="<?= htmlspecialchars($c['email']) ?>" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="phone[]"
+                                   class="form-control"
+                                   value="<?= htmlspecialchars($c['phone']) ?>" required>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="type[]" class="form-select customer-type">
+                                <option value="adult" <?= $c['type']=='adult'?'selected':'' ?>>Người lớn</option>
+                                <option value="child" <?= $c['type']=='child'?'selected':'' ?>>Trẻ em</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-center">
+                            <?php if ($index === 0): ?>
+                                <button type="button" class="btn btn-success btn-add">+</button>
+                            <?php else: ?>
+                                <button type="button" class="btn btn-danger btn-remove">×</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+
+                </div>
+            </div>
+
+            <!-- ================= TOUR ================= -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Tour *</label>
+                    <select name="tour_id" id="tour_select" class="form-select" required>
+                        <?php foreach ($tours as $tour): ?>
+                            <option value="<?= $tour['id'] ?>"
+                                    data-price="<?= $tour['price'] ?>"
+                                    <?= $tour['id']==$booking['tour_id']?'selected':'' ?>>
+                                <?= $tour['name'] ?> - <?= number_format($tour['price']) ?>đ
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Tên khách hàng</label>
-                    <input name="customer_name" class="form-control"
-                           value="<?= htmlspecialchars($booking['customer_name']) ?>">
+                    <label class="form-label fw-bold">Ngày khởi hành *</label>
+                    <input type="date" name="start_date"
+                           class="form-control"
+                           value="<?= $booking['start_date'] ?>" required>
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Số điện thoại</label>
-                    <input name="phone" class="form-control"
-                           value="<?= htmlspecialchars($booking['phone']) ?>">
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Email</label>
-                    <input name="email" type="email" class="form-control"
-                           value="<?= htmlspecialchars($booking['email']) ?>">
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Người lớn</label>
-                    <input type="number" name="adult" id="adult" class="form-control" min="1"
-                           value="<?= (int)$booking['adult'] ?>">
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Trẻ em</label>
-                    <!-- dùng đúng cột child trong DB -->
-                    <input type="number" name="child" id="child" class="form-control" min="0"
-                           value="<?= (int)$booking['child'] ?>">
+            <!-- ================= THỐNG KÊ ================= -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Người lớn</label>
+                    <input type="number" id="adult" name="adult"
+                           class="form-control" readonly
+                           value="<?= $booking['adult'] ?>">
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">Giá tour (1 người lớn)</label>
-                    <!-- chỉ dùng để tính lại total nếu muốn, không lưu DB -->
-                    <input type="number" id="price" class="form-control" min="0" value="0">
+                    <label class="form-label fw-bold">Trẻ em</label>
+                    <input type="number" id="child" name="child"
+                           class="form-control" readonly
+                           value="<?= $booking['child'] ?>">
                 </div>
 
-                <div class="col-md-8">
-                    <label class="form-label">Tổng tiền</label>
-                    <input type="number" readonly name="total_price" id="total_price"
-                           class="form-control"
-                           value="<?= (float)$booking['total_price'] ?>">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Tổng tiền</label>
+                    <input type="number" id="total_price" name="total_price"
+                           class="form-control" readonly
+                           value="<?= $booking['total_price'] ?>">
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Ngày bắt đầu</label>
-                    <input type="date" name="start_date" class="form-control"
-                           value="<?= htmlspecialchars($booking['start_date']) ?>">
-                </div>
+            <!-- ================= NGÀY KẾT THÚC ================= -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Ngày kết thúc *</label>
+                <input type="date" name="end_date"
+                       class="form-control"
+                       value="<?= $booking['end_date'] ?>" required>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Ngày kết thúc</label>
-                    <input type="date" name="end_date" class="form-control"
-                           value="<?= htmlspecialchars($booking['end_date']) ?>">
-                </div>
+            <!-- ================= GHI CHÚ ================= -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Ghi chú</label>
+                <textarea name="note" class="form-control"
+                          rows="3"><?= htmlspecialchars($booking['note']) ?></textarea>
+            </div>
 
-                <div class="col-12">
-                    <label class="form-label">Ghi chú</label>
-                    <textarea name="note" class="form-control" rows="3"><?= htmlspecialchars($booking['note']) ?></textarea>
-                </div>
+            <!-- ================= ACTION ================= -->
+            <div>
+                <button type="submit" class="btn btn-success px-4">
+                    Cập nhật Booking
+                </button>
+                <a href="?act=booking-list" class="btn btn-secondary px-4">
+                    Quay lại
+                </a>
+            </div>
 
-                <div class="col-12 d-flex justify-content-end gap-2 mt-3">
-                    <a href="?act=booking-list" class="btn btn-outline-secondary">Hủy</a>
-                    <button class="btn btn-primary">Cập nhật</button>
-                </div>
-            </form>
-
-        </div>
+        </form>
     </div>
 </div>
 
-<script>
-    function calcTotal() {
-        const adult = +document.getElementById('adult').value || 0;
-        const child = +document.getElementById('child').value || 0;
-        const price = +document.getElementById('price').value || 0;
+<?php include_once __DIR__ . '/../layout/footer.php'; ?>
 
-        const total = adult * price + child * (price * 0.7);
-        if (price > 0) {
-            document.getElementById('total_price').value = Math.round(total);
-        }
+<script>
+/* ---------- ĐẾM KHÁCH & TÍNH TIỀN ---------- */
+function recalc() {
+    const types = document.querySelectorAll('.customer-type');
+    let adult = 0, child = 0;
+
+    types.forEach(t => {
+        if (t.value === 'adult') adult++;
+        else child++;
+    });
+
+    document.getElementById('adult').value = adult;
+    document.getElementById('child').value = child;
+
+    const selected = document.querySelector('#tour_select option:checked');
+    const price = selected ? +selected.dataset.price : 0;
+
+    document.getElementById('total_price').value =
+        adult * price + child * (price * 0.7);
+}
+
+document.getElementById('tour_select').addEventListener('change', recalc);
+
+/* ---------- THÊM / XOÁ KHÁCH ---------- */
+document.addEventListener('click', function (e) {
+
+    if (e.target.classList.contains('btn-add')) {
+        const div = document.createElement('div');
+        div.className = 'row g-2 mb-2 customer-item';
+
+        div.innerHTML = `
+            <div class="col-md-3">
+                <input type="text" name="customer_name[]" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <input type="email" name="email[]" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="phone[]" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <select name="type[]" class="form-select customer-type">
+                    <option value="adult">Người lớn</option>
+                    <option value="child">Trẻ em</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-center">
+                <button type="button" class="btn btn-danger btn-remove">×</button>
+            </div>
+        `;
+
+        document.getElementById('customer-list').appendChild(div);
+        recalc();
     }
 
-    ['adult', 'child', 'price'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('input', calcTotal);
-    });
-</script>
+    if (e.target.classList.contains('btn-remove')) {
+        const total = document.querySelectorAll('.customer-item').length;
+        if (total <= 1) return alert('Booking phải có ít nhất 1 khách');
 
-</body>
-</html>
+        e.target.closest('.customer-item').remove();
+        recalc();
+    }
+});
+
+document.addEventListener('change', function (e) {
+    if (e.target.classList.contains('customer-type')) {
+        recalc();
+    }
+});
+
+/* ---------- KHOÁ FORM KHI DONE ---------- */
+<?php if ($booking['status'] === 'done'): ?>
+document.querySelectorAll('input, select, textarea, button')
+    .forEach(el => el.disabled = true);
+<?php endif; ?>
+</script>

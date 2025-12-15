@@ -114,11 +114,17 @@ class BookingController
     ============================== */
     public function edit()
     {
-        $id = $_GET['id'];
+        $id = (int)$_GET['id'];
 
         $booking   = $this->bookingModel->getOne($id);
         $customers = $this->bookingModel->getCustomers($id);
         $tours     = $this->tourModel->getAllTours();
+
+        if (!$booking) {
+            $_SESSION['error'] = 'Booking không tồn tại';
+            header('Location: ?act=booking-list');
+            exit;
+        }
 
         include "views/booking/edit.php";
     }
@@ -128,52 +134,30 @@ class BookingController
     ============================== */
     public function update()
     {
-        $booking = $this->bookingModel->getOne($_POST['id']);
-        if ($booking['status'] === 'done') {
-            $_SESSION['error'] = "Booking đã hoàn tất, không thể chỉnh sửa!";
-            header("Location: ?act=booking-list");
-            exit;
-        }
-        $id     = $_POST['id'];
-        $names  = $_POST['customer_name'];
-        $emails = $_POST['email'];
-        $phones = $_POST['phone'];
-        $types  = $_POST['customer_type'];
-
-        if (count($names) < 5) {
-            $_SESSION['error'] = "Booking phải có tối thiểu 5 khách!";
-            header("Location: ?act=booking-edit&id=" . $id);
-            exit;
-        }
-
-        $adult = count(array_filter($types, fn($t) => $t === 'adult'));
-        $child = count(array_filter($types, fn($t) => $t === 'child'));
-
-        $booking = [
-            'id'          => $id,
-            'adult'       => $adult,
-            'child'       => $child,
-            'total_price' => $_POST['total_price'],
-            'start_date'  => $_POST['start_date'],
-            'end_date'    => $_POST['end_date'],
-            'note'        => $_POST['note']
-        ];
-
         $customers = [];
-        foreach ($names as $i => $n) {
+        foreach ($_POST['customer_name'] as $i => $name) {
             $customers[] = [
-                'name'  => $n,
-                'phone' => $phones[$i],
-                'email' => $emails[$i],
-                'type' => $types[$i]
+                'name'  => $name,
+                'email' => $_POST['email'][$i],
+                'phone' => $_POST['phone'][$i],
+                'type'  => $_POST['type'][$i],
             ];
         }
 
+        $booking = [
+            'id'          => $_POST['id'],
+            'adult'       => $_POST['adult'],
+            'child'       => $_POST['child'],
+            'total_price' => $_POST['total_price'],
+            'start_date'  => $_POST['start_date'],
+            'end_date'    => $_POST['end_date'],
+            'note'        => $_POST['note'],
+        ];
+
         $this->bookingModel->update($booking, $customers);
 
-        $_SESSION['success'] = "Cập nhật booking thành công!";
-        header("Location: ?act=booking-list");
-        exit;
+        $_SESSION['success'] = 'Cập nhật booking thành công';
+        header('Location: ?act=booking-list');
     }
 
     /* =============================
