@@ -113,6 +113,7 @@ $routes = [
     'booking-update' => ['controller' => $bookingController, 'method' => 'update'],
     'booking-delete' => ['controller' => $bookingController, 'method' => 'delete'],
     'booking-change-status' => ['controller' => $bookingController, 'method' => 'changeStatus'],
+    'booking-detail' => ['controller' => $bookingController, 'method' => 'detail'],
 
     // CATEGORY
     'category-list' => ['controller' => $categoryController, 'method' => 'categoryList'],
