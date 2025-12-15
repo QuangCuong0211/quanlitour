@@ -1,131 +1,207 @@
-<?php
-$old = $_SESSION['old'] ?? [];
-unset($_SESSION['old']);
-?>
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Thêm Booking</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<?php include_once __DIR__ . '/../layout/header.php'; ?>
+<?php include_once __DIR__ . '/../layout/sidebar.php'; ?>
 
-<body class="p-4">
-<div class="container" style="max-width:900px">
+<div class="container-fluid px-4">
+    <h3 class="mt-4 mb-4">Thêm Booking</h3>
 
-    <div class="d-flex justify-content-between mb-3">
-        <h2>Thêm booking mới</h2>
-        <a class="btn btn-outline-secondary" href="?act=booking-list">← Danh sách</a>
-    </div>
-
-    <?php if (!empty($_SESSION['errors'])): ?>
+    <?php if (!empty($_SESSION['error'])): ?>
         <div class="alert alert-danger">
-            <?php foreach($_SESSION['errors'] as $e): ?>
-                <div>- <?= htmlspecialchars($e) ?></div>
-            <?php endforeach; unset($_SESSION['errors']); ?>
+            <?= $_SESSION['error']; unset($_SESSION['error']); ?>
         </div>
     <?php endif; ?>
 
-    <form method="post" action="?act=booking-save" class="row g-3 card p-3">
+    <div class="card shadow-sm p-4">
 
-        <div class="col-md-6">
-            <label>Tên khách</label>
-            <input name="customer_name" class="form-control" value="<?= htmlspecialchars($old['customer_name'] ?? '') ?>">
-        </div>
+        <!-- ⚠️ SỬA ACTION -->
+        <form action="?act=booking-save" method="POST" id="bookingForm">
 
-        <div class="col-md-6">
-            <label>Tour</label>
-            <select name="tour_id" id="tour_select" class="form-control">
-                <option value="">-- Chọn tour --</option>
-                <?php foreach($tours as $t): ?>
-                    <option 
-                        value="<?= $t['id'] ?>"
-                        data-price="<?= $t['price'] ?>"
-                        data-price-child="<?= $t['price_child'] ?? 0 ?>"
-                    >
-                        <?= htmlspecialchars($t['name']) ?> - <?= number_format($t['price']) ?> đ
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+            <!-- ================= DANH SÁCH KHÁCH ================= -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">
+                    Danh sách khách hàng <span class="text-danger">(tối thiểu 5)</span>
+                </label>
 
-        <div class="col-md-6">
-            <label>Phone</label>
-            <input name="phone" class="form-control" value="<?= htmlspecialchars($old['phone'] ?? '') ?>">
-        </div>
+                <div id="customer-list">
 
-        <div class="col-md-6">
-            <label>Email</label>
-            <input name="email" class="form-control" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
-        </div>
+                    <!-- KHÁCH 1 -->
+                    <div class="row g-2 mb-2 customer-item">
+                        <div class="col-md-3">
+                            <input type="text" name="customer_name[]" class="form-control"
+                                   placeholder="Tên khách hàng" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="email" name="email[]" class="form-control"
+                                   placeholder="Email" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="phone[]" class="form-control"
+                                   placeholder="Số điện thoại" required>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="type[]" class="form-select customer-type">
+                                <option value="adult">Người lớn</option>
+                                <option value="child">Trẻ em</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-center">
+                            <button type="button" class="btn btn-success btn-add">+</button>
+                        </div>
+                    </div>
 
-        <div class="col-md-3">
-            <label>Người lớn</label>
-            <input type="number" name="adult" id="adult" class="form-control" value="<?= $old['adult'] ?? 1 ?>" min="1">
-        </div>
+                </div>
 
-        <div class="col-md-3">
-            <label>Trẻ em</label>
-            <input type="number" name="child" id="child" class="form-control" value="<?= $old['child'] ?? 0 ?>" min="0">
-        </div>
+                <small class="text-muted">
+                    * Bấm dấu <strong>+</strong> để thêm khách hàng
+                </small>
+            </div>
 
-        <div class="col-md-4">
-            <label>Giá tour (1 khách)</label>
-            <input type="number" id="price" name="price" class="form-control" value="<?= $old['price'] ?? 0 ?>">
-        </div>
+            <!-- ================= TOUR ================= -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Tour *</label>
+                    <select name="tour_id" id="tour_select" class="form-select" required>
+                        <option value="">-- Chọn Tour --</option>
+                        <?php foreach ($tours as $tour): ?>
+                            <option value="<?= $tour['id'] ?>"
+                                    data-price="<?= $tour['price'] ?>">
+                                <?= $tour['name'] ?> - <?= number_format($tour['price']) ?>đ
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-        <div class="col-md-8">
-            <label>Tổng tiền</label>
-            <input readonly name="total_price" id="total_price" class="form-control" value="<?= $old['total_price'] ?? 0 ?>">
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Ngày khởi hành *</label>
+                    <input type="date" name="start_date" class="form-control" required>
+                </div>
+            </div>
 
-        <div class="col-md-6">
-            <label>Ngày bắt đầu</label>
-            <input type="date" name="start_date" class="form-control" value="<?= $old['start_date'] ?? '' ?>">
-        </div>
+            <!-- ================= THỐNG KÊ ================= -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Người lớn</label>
+                    <input type="number" id="adult" name="adult"
+                           class="form-control" readonly value="1">
+                </div>
 
-        <div class="col-md-6">
-            <label>Ngày kết thúc</label>
-            <input type="date" name="end_date" class="form-control" value="<?= $old['end_date'] ?? '' ?>">
-        </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Trẻ em</label>
+                    <input type="number" id="child" name="child"
+                           class="form-control" readonly value="0">
+                </div>
 
-        <div class="col-12">
-            <label>Ghi chú</label>
-            <textarea name="note" class="form-control"><?= htmlspecialchars($old['note'] ?? '') ?></textarea>
-        </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Tổng tiền</label>
+                    <input type="number" id="total_price" name="total_price"
+                           class="form-control" readonly value="0">
+                </div>
+            </div>
 
-        <div class="col-12 text-end">
-            <a class="btn btn-secondary" href="?act=booking-list">Hủy</a>
-            <button class="btn btn-primary">Lưu booking</button>
-        </div>
+            <!-- ================= NGÀY KẾT THÚC ================= -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Ngày kết thúc *</label>
+                <input type="date" name="end_date" class="form-control" required>
+            </div>
 
-    </form>
+            <!-- ================= GHI CHÚ ================= -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Ghi chú</label>
+                <textarea name="note" class="form-control" rows="3"></textarea>
+            </div>
+
+            <!-- ================= ACTION ================= -->
+            <div>
+                <button type="submit" class="btn btn-success px-4">
+                    Lưu Booking
+                </button>
+                <a href="?act=booking-list" class="btn btn-secondary px-4">
+                    Hủy
+                </a>
+            </div>
+
+        </form>
+
+    </div>
 </div>
 
-<script>
-function calcTotal() {
-    const adult = +document.getElementById('adult').value || 0;
-    const child = +document.getElementById('child').value || 0;
-    const price = +document.getElementById('price').value || 0;
+<?php include_once __DIR__ . '/../layout/footer.php'; ?>
 
-    const total = adult * price + child * (price * 0.7); // trẻ em 70%
-    document.getElementById('total_price').value = Math.round(total);
+<script>
+/* ---------- ĐẾM KHÁCH & TÍNH TIỀN ---------- */
+function recalc() {
+    const types = document.querySelectorAll('.customer-type');
+    let adult = 0, child = 0;
+
+    types.forEach(t => {
+        if (t.value === 'adult') adult++;
+        else child++;
+    });
+
+    document.getElementById('adult').value = adult;
+    document.getElementById('child').value = child;
+
+    const selected = document.querySelector('#tour_select option:checked');
+    const price = selected ? +selected.dataset.price : 0;
+
+    document.getElementById('total_price').value =
+        adult * price + child * (price * 0.7);
 }
 
-// khi chọn tour → cập nhật giá tour
-document.getElementById('tour_select').addEventListener('change', function() {
-    const p = this.options[this.selectedIndex].dataset.price || 0;
-    document.getElementById('price').value = p;
-    calcTotal();
+document.getElementById('tour_select').addEventListener('change', recalc);
+
+/* ---------- THÊM / XOÁ KHÁCH ---------- */
+document.addEventListener('click', function (e) {
+
+    if (e.target.classList.contains('btn-add')) {
+        const div = document.createElement('div');
+        div.className = 'row g-2 mb-2 customer-item';
+
+        div.innerHTML = `
+            <div class="col-md-3">
+                <input type="text" name="customer_name[]" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <input type="email" name="email[]" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="phone[]" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <select name="type[]" class="form-select customer-type">
+                    <option value="adult">Người lớn</option>
+                    <option value="child">Trẻ em</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-center">
+                <button type="button" class="btn btn-danger btn-remove">×</button>
+            </div>
+        `;
+
+        document.getElementById('customer-list').appendChild(div);
+        recalc();
+    }
+
+    if (e.target.classList.contains('btn-remove')) {
+        const total = document.querySelectorAll('.customer-item').length;
+        if (total <= 1) return alert('Booking phải có ít nhất 1 khách');
+
+        e.target.closest('.customer-item').remove();
+        recalc();
+    }
 });
 
-// khi thay đổi số lượng
-['adult','child','price'].forEach(id =>
-    document.getElementById(id).addEventListener('input', calcTotal)
-);
+document.addEventListener('change', function (e) {
+    if (e.target.classList.contains('customer-type')) {
+        recalc();
+    }
+});
 
-calcTotal();
+/* ---------- VALIDATE ≥ 5 KHÁCH ---------- */
+document.getElementById('bookingForm').addEventListener('submit', function (e) {
+    const totalCustomer = document.querySelectorAll('.customer-item').length;
+    if (totalCustomer < 5) {
+        alert('Booking phải có tối thiểu 5 khách hàng');
+        e.preventDefault();
+    }
+});
 </script>
-
-</body>
-</html>

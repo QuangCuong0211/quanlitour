@@ -5,27 +5,7 @@
     <title>Sửa Booking</title>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <style>
-        body {
-            background: #f3f4f6;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        }
-        .card-custom {
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-        }
-        label {
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .form-control {
-            border-radius: 999px;
-        }
-        textarea.form-control {
-            border-radius: 12px;
-        }
-    </style>
+    
 </head>
 
 <body class="py-4">
