@@ -188,6 +188,11 @@ flash('error');
                                         <a href="?act=booking-delete&id=<?= $item['id'] ?>"
                                             onclick="return confirm('Xóa booking này?')"
                                             class="btn btn-danger btn-sm">Xóa</a>
+                                        <button
+                                            class="btn btn-info btn-sm"
+                                            onclick="showDetail(<?= $item['id'] ?>)">
+                                            Chi tiết
+                                        </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -203,6 +208,33 @@ flash('error');
             </div>
         </div>
     </div>
+    <!-- MODAL CHI TIẾT BOOKING -->
+    <div class="modal fade" id="bookingDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết Booking</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" id="booking-detail-content">
+                    <div class="text-center text-muted">Đang tải dữ liệu...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function showDetail(id) {
+            fetch('?act=booking-detail&id=' + id)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById('booking-detail-content').innerHTML = html;
+                    new bootstrap.Modal(
+                        document.getElementById('bookingDetailModal')
+                    ).show();
+                });
+        }
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

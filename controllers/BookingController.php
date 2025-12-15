@@ -208,4 +208,22 @@ class BookingController
         header("Location: ?act=booking-list");
         exit;
     }
+    /* =============================
+       CHI TIẾT BOOKING (MODAL)
+    ============================== */
+    public function detail()
+
+    {
+        $id = (int)($_GET['id'] ?? 0);
+
+        $booking = $this->bookingModel->getOne($id);
+        if (!$booking) {
+            echo "<p class='text-danger'>Booking không tồn tại</p>";
+            return;
+        }
+
+        $customers = $this->bookingModel->getCustomers($id);
+
+        include "views/booking/detail_modal.php";
+    }
 }
