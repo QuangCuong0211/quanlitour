@@ -38,11 +38,67 @@ class CustomerController
         $identity_number = trim($_POST['identity_number'] ?? '');
         $status = intval($_POST['status'] ?? 1);
 
+        // if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        //     $_SESSION['error'] = "Email không hợp lệ!";
+        //     header("Location: ?act=customer-add");
+        //     exit();
+        // }
+        // Validate tên
+        if (empty($name)) {
+            $_SESSION['error'] = "Tên khách hàng không được để trống!";
+            header("Location: ?act=customer-add");
+            exit();
+        }
+
+        // Validate email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email không hợp lệ!";
             header("Location: ?act=customer-add");
             exit();
         }
+
+        // Validate sđt Việt Nam
+        if (!preg_match("/^(03|05|07|08|09)[0-9]{8}$/", $phone)) {
+            $_SESSION['error'] = "Số điện thoại không hợp lệ!";
+            header("Location: ?act=customer-add");
+            exit();
+        }
+
+        // Validate thành phố
+        if (empty($city)) {
+            $_SESSION['error'] = "Thành phố không được để trống!";
+            header("Location: ?act=customer-add");
+            exit();
+        }
+
+        // Validate địa chỉ
+        if (empty($address)) {
+            $_SESSION['error'] = "Địa chỉ không được để trống!";
+            header("Location: ?act=customer-add");
+            exit();
+        }
+
+        // Validate CCCD / CMND (không bắt buộc)
+        if (!empty($identity) && !preg_match("/^[0-9]{9,12}$/", $identity)) {
+            $_SESSION['error'] = "Số CMND/CCCD không hợp lệ!";
+            header("Location: ?act=customer-add");
+            exit();
+        }
+
+        // Validate status
+        if ($status !== "0" && $status !== "1") {
+            $_SESSION['error'] = "Trạng thái không hợp lệ!";
+            header("Location: ?act=customer-add");
+            exit();
+        }
+
+        // --- Nếu qua hết validate thì lưu vào DB ---
+// Ví dụ:
+# $sql = "INSERT INTO customers (name, email, phone, city, identity_number, status, address) VALUES (...)";
+
+        $_SESSION['success'] = "Thêm khách hàng thành công!";
+        header("Location: ?act=customer-add");
+        exit();
 
         if ($this->modelCustomer->insertCustomer($name, $email, $phone, $address, $city, $identity_number, $status)) {
             $_SESSION['success'] = "Thêm khách hàng thành công!";
@@ -81,14 +137,54 @@ class CustomerController
         $identity_number = trim($_POST['identity_number'] ?? '');
         $status = intval($_POST['status'] ?? 1);
 
-        if ($id <= 0 || empty($name) || empty($email) || empty($phone) || empty($address) || empty($city)) {
-            $_SESSION['error'] = "Dữ liệu không hợp lệ!";
+        // if ($id <= 0 || empty($name) || empty($email) || empty($phone) || empty($address) || empty($city)) {
+        //     $_SESSION['error'] = "Dữ liệu không hợp lệ!";
+        //     header("Location: ?act=customer-edit&id=$id");
+        //     exit();
+        // }
+
+        // if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        //     $_SESSION['error'] = "Email không hợp lệ!";
+        //     header("Location: ?act=customer-edit&id=$id");
+        //     exit();
+        // }
+        if (empty($name)) {
+            $_SESSION['error'] = "Tên khách hàng không được để trống!";
             header("Location: ?act=customer-edit&id=$id");
             exit();
         }
 
+        // Email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email không hợp lệ!";
+            header("Location: ?act=customer-edit&id=$id");
+            exit();
+        }
+
+        // Số điện thoại
+        if (!preg_match("/^(03|05|07|08|09)[0-9]{8}$/", $phone)) {
+            $_SESSION['error'] = "Số điện thoại không hợp lệ!";
+            header("Location: ?act=customer-edit&id=$id");
+            exit();
+        }
+
+        // Thành phố
+        if (empty($city)) {
+            $_SESSION['error'] = "Thành phố không được để trống!";
+            header("Location: ?act=customer-edit&id=$id");
+            exit();
+        }
+
+        // Địa chỉ
+        if (empty($address)) {
+            $_SESSION['error'] = "Địa chỉ không được để trống!";
+            header("Location: ?act=customer-edit&id=$id");
+            exit();
+        }
+
+        // CMND / CCCD
+        if (!empty($identity_number) && !preg_match("/^[0-9]{9}$|^[0-9]{12}$/", $identity_number)) {
+            $_SESSION['error'] = "CMND/CCCD không hợp lệ!";
             header("Location: ?act=customer-edit&id=$id");
             exit();
         }

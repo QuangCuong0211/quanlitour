@@ -3,8 +3,21 @@ if (isset($_SESSION['error'])) {
     echo '<div style="background: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">' . htmlspecialchars($_SESSION['error']) . '</div>';
     unset($_SESSION['error']);
 }
-?>
+$errors = [];
+$name = "";
 
+// Khi nhấn Submit
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // Lấy dữ liệu
+    $name = trim($_POST['name']);
+
+    // Validate tên
+    if (empty($name)) {
+        $errors[] = "Vui lòng nhập họ tên.";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -144,7 +157,6 @@ if (isset($_SESSION['error'])) {
 </head>
 
 <body>
-
     <div class="sidebar">
         <h2>Admin</h2>
         <a href="?act=admin">Dashboard</a>
@@ -154,47 +166,47 @@ if (isset($_SESSION['error'])) {
         <a href="?act=customer-list" class="active">Khách Hàng</a>
         <a href="?act=booking-list">Quản lý Booking</a>
     </div>
-
     <div class="content">
         <div class="card">
             <h2>Thêm HDV</h2>
+            <?php if (!empty($errors)): ?>
+                <div class="error-box">
+                    <?php foreach ($errors as $error): ?>
+                        <div><?php echo $error; ?></div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
 
             <form method="POST" action="?act=guide-save">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
                         <label for="name">Tên hdv *</label>
-                        <input type="text" id="name" name="name" required placeholder="VD: Nguyễn Văn A">
+                        <input type="text" id="name" name="name"  placeholder="VD: Nguyễn Văn A">
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" required placeholder="VD: khachhang@gmail.com">
+                        <input type="email" id="email" name="email"  placeholder="VD: khachhang@gmail.com">
                     </div>
                     <div class="form-group">
                         <label for="img">Avatar*</label>
-                        <input type="file" id="img" name="img" required placeholder="ảnh">
+                        <input type="file" id="img" name="img"  placeholder="ảnh">
                     </div>
 
                     <div class="form-group">
                         <label for="sdt">Số Điện Thoại*</label>
-                        <input type="text" id="sdt" name="sdt" required placeholder="VD: 0901234567">
+                        <input type="text" id="sdt" name="sdt"  placeholder="VD: 0901234567">
                     </div>
 
                     <div class="form-group">
                         <label for="exp">Kinh Nghiệm*</label>
-                        <input type="text" id="exp" name="exp" required placeholder="Kinh nghiệm làm việc">
+                        <input type="text" id="exp" name="exp"  placeholder="Kinh nghiệm làm việc">
                     </div>
-
-
-
-
                 </div>
-
                 <div class="form-group">
                     <label for="language">Ngôn Ngữ *</label>
-                    <textarea id="language" name="language" required placeholder="Nhập ngôn ngữ"></textarea>
+                    <textarea id="language" name="language"  placeholder="Nhập ngôn ngữ"></textarea>
                 </div>
-
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Lưu HDV</button>
                     <a href="?act=guide-list" class="btn btn-secondary"
@@ -203,7 +215,6 @@ if (isset($_SESSION['error'])) {
             </form>
         </div>
     </div>
-
 </body>
 
 </html>
