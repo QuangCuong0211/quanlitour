@@ -138,4 +138,17 @@ class TourModel
 
         return $ok;
     }
+    //
+    public function getOne($id)
+{
+    $sql = "SELECT * FROM tours WHERE id = ?";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    return $result->fetch_assoc(); // ✅ ĐÚNG
+}
+
+
 }

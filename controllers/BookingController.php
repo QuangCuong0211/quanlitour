@@ -10,7 +10,7 @@ class BookingController
     public function __construct()
     {
         $this->bookingModel = new BookingModel();
-        $this->tourModel = new TourModel();
+        $this->tourModel    = new TourModel();
     }
 
     // =============================
@@ -35,37 +35,79 @@ class BookingController
     // LƯU BOOKING
     // =============================
     public function store()
-    {
-        $data = [
-            "tour_id"       => $_POST['tour_id'],
-            "booking_code"  => "BK-" . date("Y") . "-" . rand(10000, 99999),
-            "customer_name" => $_POST['customer_name'],
-            "phone"         => $_POST['phone'],
-            "email"         => $_POST['email'],
-            "adult"         => $_POST['adult'],
-            "child"         => $_POST['child'],
-            "total_price"   => $_POST['total_price'],
-            "start_date"    => $_POST['start_date'],
-            "end_date"      => $_POST['end_date'],
-            "note"          => $_POST['note']
-        ];
+{
+    $names  = $_POST['customer_name'] ?? [];
+    $emails = $_POST['email'] ?? [];
+    $phones = $_POST['phone'] ?? [];
+    $types  = $_POST['customer_type'] ?? [];
 
-        if ($this->bookingModel->insert($data)) {
-            $_SESSION['success'] = "Thêm booking thành công!";
-        } else {
-            $_SESSION['error'] = "Không thể thêm booking!";
-        }
+    $totalCustomer = count($names);
 
-        header("Location: ?act=booking-list");
+    if ($totalCustomer < 5) {
+        $_SESSION['error'] = "Booking phải có tối thiểu 5 khách hàng!";
+        header("Location: ?act=booking-create");
         exit();
     }
 
+    foreach ($names as $i => $name) {
+        if (empty($name) || empty($emails[$i]) || empty($phones[$i])) {
+            $_SESSION['error'] = "Thông tin khách hàng không được để trống!";
+            header("Location: ?act=booking-create");
+            exit();
+        }
+    }
+
+    if ($_POST['end_date'] <= $_POST['start_date']) {
+        $_SESSION['error'] = "Ngày kết thúc phải sau ngày khởi hành!";
+        header("Location: ?act=booking-create");
+        exit();
+    }
+
+    // ===== ĐẾM NGƯỜI LỚN / TRẺ EM =====
+    $adult = count(array_filter($types, fn($t) => $t === 'adult'));
+    $child = count(array_filter($types, fn($t) => $t === 'child'));
+
+    // ===== LẤY GIÁ TOUR =====
+    $tour = $this->tourModel->getOne($_POST['tour_id']);
+    if (!$tour) {
+        $_SESSION['error'] = "Tour không tồn tại!";
+        header("Location: ?act=booking-add");
+        exit();
+    }
+
+    $totalPrice = $adult * $tour['price'] + $child * ($tour['price'] * 0.7);
+
+    $data = [
+        "tour_id"       => $_POST['tour_id'],
+        "booking_code"  => "BK-" . date("Y") . "-" . rand(10000, 99999),
+        "customer_name" => json_encode($names),
+        "email"         => json_encode($emails),
+        "phone"         => json_encode($phones),
+        "adult"         => $adult,
+        "child"         => $child,
+        "total_price"   => $totalPrice,
+        "start_date"    => $_POST['start_date'],
+        "end_date"      => $_POST['end_date'],
+        "note"          => $_POST['note']
+    ];
+
+    if ($this->bookingModel->insert($data)) {
+        $_SESSION['success'] = "Thêm booking thành công!";
+    } else {
+        $_SESSION['error'] = "Không thể thêm booking!";
+    }
+
+    header("Location: ?act=booking-list");
+    exit();
+}
+
+
     // =============================
-    // FORM SỬA BOOKING
+    // FORM SỬA
     // =============================
     public function edit()
     {
-        $id = $_GET['id'];
+        $id      = $_GET['id'];
         $booking = $this->bookingModel->getOne($id);
         $tours   = $this->tourModel->getAllTours();
 
@@ -73,21 +115,33 @@ class BookingController
     }
 
     // =============================
-    // CẬP NHẬT BOOKING
+    // CẬP NHẬT
     // =============================
     public function update()
     {
+        $customerNames = $_POST['customer_name'] ?? [];
+        $emails        = $_POST['email'] ?? [];
+        $phones        = $_POST['phone'] ?? [];
+
+        $totalCustomer = count($customerNames);
+
+        if ($totalCustomer < 5) {
+            $_SESSION['error'] = "Booking phải có tối thiểu 5 khách hàng!";
+            header("Location: ?act=booking-edit&id=" . $_POST['id']);
+            exit();
+        }
+
         $data = [
             "id"            => $_POST['id'],
-            "customer_name" => $_POST['customer_name'],
-            "phone"         => $_POST['phone'],
-            "email"         => $_POST['email'],
-            "adult"         => $_POST['adult'],
-            "child"         => $_POST['child'],
+            "customer_name" => json_encode($customerNames),
+            "email"         => json_encode($emails),
+            "phone"         => json_encode($phones),
+            "adult"         => $totalCustomer,
+            "child"         => 0,
             "total_price"   => $_POST['total_price'],
             "start_date"    => $_POST['start_date'],
             "end_date"      => $_POST['end_date'],
-            "note"          => $_POST['note'],
+            "note"          => $_POST['note']
         ];
 
         if ($this->bookingModel->update($data)) {
@@ -101,25 +155,7 @@ class BookingController
     }
 
     // =============================
-    // ĐỔI TRẠNG THÁI BOOKING
-    // =============================
-    public function changeStatus()
-    {
-        $id = $_POST['id'];
-        $status = $_POST['status'];
-
-        if ($this->bookingModel->changeStatus($id, $status)) {
-            $_SESSION['success'] = "Cập nhật trạng thái thành công!";
-        } else {
-            $_SESSION['error'] = "Không thể cập nhật trạng thái!";
-        }
-
-        header("Location: ?act=booking-list");
-        exit();
-    }
-
-    // =============================
-    // XOÁ BOOKING
+    // XOÁ
     // =============================
     public function delete()
     {
