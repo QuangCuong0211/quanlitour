@@ -47,11 +47,17 @@ if ($act === 'login') {
 
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id']   = $user['id'];
-            $_SESSION['user_name'] = $user['fullname'];          
+            $_SESSION['user_name'] = $user['name'];          
             $_SESSION['user_role'] = $user['role'];
 
-            $_SESSION['success'] = "Chào mừng {$user['fullname']} quay lại!";
-            header("Location: index.php?act=admin");
+            $_SESSION['success'] = "Chào mừng {$user['name']} quay lại!";
+
+            // SỬA Ở ĐÂY: Redirect đúng theo role
+            if ($user['role'] === 'admin') {
+                header("Location: index.php?act=admin");
+            } else { // hdv
+                header("Location: index.php?act=hdv-dashboard");
+            }
             exit;
         } else {
             $_SESSION['error'] = "Email hoặc mật khẩu không đúng!";
