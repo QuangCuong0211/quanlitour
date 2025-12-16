@@ -1,152 +1,87 @@
 <?php
+
 class TourController
 {
-    public $modelTour;
+    protected $tourModel;
+    protected $guideModel;
 
     public function __construct()
     {
-        $this->modelTour = new TourModel();
-    }
-
-    public function Home()
-    {
-        require_once './views/trangchu.php';
-    }
-
-    public function Admin()
-    {
-        require_once './views/admin.php';
+        $this->tourModel = new TourModel();
+        $this->guideModel = new GuideModel();
     }
 
     public function tourList()
     {
-        $tours = $this->modelTour->getAllTours();
-        require_once './views/tour/list.php';
+        $tours = $this->tourModel->getAllTours();
+        require 'views/tour/list.php';
     }
 
     public function tourAdd()
     {
-        require_once './views/tour/add.php';
+        $guides = $this->guideModel->getAll();
+        require 'views/tour/add.php';
     }
 
     public function tourSave()
     {
-        $data = $_POST;
+        $data = [
+            'tour_code' => $_POST['tour_code'],
+            'name' => $_POST['name'],
+            'departure_date' => $_POST['departure_date'],
+            'price' => $_POST['price'],
+            'status' => $_POST['status'],
+            'guide_id' => $_POST['guide_id'],
+            'note' => $_POST['note']
+        ];
 
-        // ================ VALIDATE =================
-        $errors = [];
-
-        if (empty($data['tour_id'])) $errors[] = "Mã tour không được để trống.";
-        if (empty($data['name'])) $errors[] = "Tên tour không được để trống.";
-        if (empty($data['description'])) $errors[] = "Mô tả không được để trống.";
-
-        if (empty($data['departure_date'])) {
-            $errors[] = "Ngày khởi hành không được để trống.";
-        } elseif (!strtotime($data['departure_date'])) {
-            $errors[] = "Ngày khởi hành không hợp lệ.";
-        }
-
-        if (empty($data['price']) || $data['price'] <= 0) {
-            $errors[] = "Giá tour phải lớn hơn 0.";
-        }
-
-        if (empty($data['customer'])) $errors[] = "Tên khách hàng không được để trống.";
-        if (empty($data['guide'])) $errors[] = "Tên hướng dẫn viên không được để trống.";
-        if (empty($data['status'])) $errors[] = "Vui lòng chọn trạng thái.";
-
-        // Nếu có lỗi → quay lại form
-        if (!empty($errors)) {
-            $_SESSION['error'] = implode("<br>", $errors);
-            header("Location: ?act=tour-add");
-            exit();
-        }
-
-        // ================ INSERT ================
-        $ok = $this->modelTour->insertTour($data);
-
-        if ($ok) {
-            $_SESSION['success'] = "Thêm tour thành công!";
-        } else {
-            $_SESSION['error'] = "Không thể thêm tour. Vui lòng thử lại.";
-        }
-
-        header("Location: ?act=tour-list");
-        exit();
+        $this->tourModel->insert($data);
+        $_SESSION['success'] = 'Thêm tour thành công';
+        header('Location: index.php?act=tour-list');
+        exit;
     }
 
     public function tourEdit()
     {
-        $id = $_GET['id'] ?? 0;
-        $tour = $this->modelTour->getTourById($id);
-
-        if (!$tour) {
-            $_SESSION['error'] = "Tour không tồn tại!";
-            header("Location: ?act=tour-list");
-            exit();
-        }
-
-        require_once './views/tour/edit.php';
+        $id = $_GET['id'];
+        $tour = $this->tourModel->getOne($id);
+        $guides = $this->guideModel->getAll();
+        require 'views/tour/edit.php';
     }
 
     public function tourUpdate()
     {
-        $id   = intval($_POST['id']);
-        $data = $_POST;
+        $id = $_POST['id'];
+        $data = [
+            'tour_code' => $_POST['tour_code'],
+            'name' => $_POST['name'],
+            'departure_date' => $_POST['departure_date'],
+            'price' => $_POST['price'],
+            'status' => $_POST['status'],
+            'guide_id' => $_POST['guide_id'],
+            'note' => $_POST['note']
+        ];
 
-        // ================ VALIDATE =================
-        $errors = [];
-
-        if ($id <= 0) $errors[] = "ID không hợp lệ.";
-        if (empty($data['tour_id'])) $errors[] = "Mã tour không được để trống.";
-        if (empty($data['name'])) $errors[] = "Tên tour không được để trống.";
-        if (empty($data['description'])) $errors[] = "Mô tả không được để trống.";
-
-        if (empty($data['departure_date'])) {
-            $errors[] = "Ngày khởi hành không được để trống.";
-        } elseif (!strtotime($data['departure_date'])) {
-            $errors[] = "Ngày khởi hành không hợp lệ.";
-        }
-
-        if (empty($data['price']) || $data['price'] <= 0) {
-            $errors[] = "Giá tour phải lớn hơn 0.";
-        }
-
-        if (empty($data['customer'])) $errors[] = "Tên khách hàng không được để trống.";
-        if (empty($data['guide'])) $errors[] = "Tên hướng dẫn viên không được để trống.";
-        if (empty($data['status'])) $errors[] = "Vui lòng chọn trạng thái.";
-
-        if (!empty($errors)) {
-            $_SESSION['error'] = implode("<br>", $errors);
-            header("Location: ?act=tour-edit&id=$id");
-            exit();
-        }
-
-        // ================ UPDATE ================
-        $result = $this->modelTour->updateTour($id, $data);
-
-        if ($result['status'] === 'updated') {
-            $_SESSION['success'] = "Cập nhật tour thành công!";
-        } elseif ($result['status'] === 'nochange') {
-            $_SESSION['success'] = "Không có thay đổi nào!";
-        } else {
-            $_SESSION['error'] = "Cập nhật thất bại: " . $result['message'];
-        }
-
-        header("Location: ?act=tour-list");
-        exit();
+        $this->tourModel->update($id, $data);
+        $_SESSION['success'] = 'Cập nhật tour thành công';
+        header('Location: index.php?act=tour-list');
+        exit;
     }
 
-    public function tourDelete()
-    {
-        $id = intval($_GET['id']);
+   public function tourDelete()
+{
+    $id = (int)$_GET['id'];
 
-        if ($this->modelTour->deleteTour($id)) {
-            $_SESSION['success'] = "Xóa tour thành công!";
-        } else {
-            $_SESSION['error'] = "Xóa tour thất bại!";
-        }
-
+    if ($this->tourModel->hasBooking($id)) {
+        $_SESSION['error'] = "Không thể xoá tour đã có booking!";
         header("Location: ?act=tour-list");
-        exit();
+        exit;
     }
+
+    $this->tourModel->delete($id);
+    $_SESSION['success'] = "Đã xoá tour!";
+    header("Location: ?act=tour-list");
+}
+
+
 }

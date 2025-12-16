@@ -15,9 +15,9 @@ class GuideModel
     }
  
     // Lấy tất cả khách hàng
-    public function getAllGuides()
+    public function getAll()
     {
-        $sql = "SELECT * FROM guide ORDER BY id DESC";
+        $sql = "SELECT * FROM guides ORDER BY id DESC";
         $result = $this->conn->query($sql);
 
         $data = [];
@@ -33,7 +33,7 @@ class GuideModel
     // Lấy khách hàng theo id
     public function getGuideById($id)
     {
-        $sql = "SELECT * FROM guide WHERE id = ?";
+        $sql = "SELECT * FROM guides WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return false;
@@ -51,7 +51,7 @@ class GuideModel
     // Thêm khách hàng
     public function insertGuide($name, $email, $sdt, $img, $exp, $language)
     {
-        $sql = "INSERT INTO guide (name, email, sdt, img, exp, language) 
+        $sql = "INSERT INTO guides (name, email, sdt, img, exp, language) 
                 VALUES (?, ?, ?,?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
@@ -68,7 +68,7 @@ class GuideModel
     // Cập nhật khách hàng
     public function updateGuide($id, $name, $email,  $sdt, $img, $exp, $language)
     {
-        $sql = "UPDATE guide SET name = ?, email = ?, sdt = ?, img = ?, exp = ?, language = ? WHERE id = ?";
+        $sql = "UPDATE guides SET name = ?, email = ?, sdt = ?, img = ?, exp = ?, language = ? WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return false;
@@ -84,7 +84,7 @@ class GuideModel
     // Xóa khách hàng
     public function deleteGuide($id)
     {
-        $sql = "DELETE FROM guide WHERE id = ?";
+        $sql = "DELETE FROM guides WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return false;
