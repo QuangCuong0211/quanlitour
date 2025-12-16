@@ -22,6 +22,7 @@ require_once './controllers/CustomerController.php';
 require_once './controllers/GuideController.php';
 require_once './controllers/ReviewController.php';
 require_once './controllers/AdminController.php';
+require_once './controllers/HdvController.php';
 
 
 $act = $_GET['act'] ?? '/';
@@ -34,7 +35,7 @@ $customerController = new CustomerController();
 $guideController = new GuideController();
 $reviewController = new ReviewController();
 $adminController = new AdminController();
-
+$hdvController = new HdvController();
 
 // ==================== XỬ LÝ ĐĂNG NHẬP ====================
 if ($act === 'login') {
@@ -75,7 +76,11 @@ $protected_routes = [
     'category-list', 'category-add', 'category-save', 'category-edit', 'category-update', 'category-delete',
     'departure-list', 'departure-add', 'departure-save', 'departure-edit', 'departure-update', 'departure-delete',
     'customer-list', 'customer-detail', 'customer-add', 'customer-save', 'customer-edit', 'customer-update', 'customer-delete',
-    'review-list'
+    'review-list','hdv-dashboard',
+    'hdv-today',
+    'hdv-month',
+    'hdv-customers',
+    'hdv-attendance'
 ];
 
 if (in_array($act, $protected_routes) && empty($_SESSION['user_id'])) {
@@ -146,6 +151,13 @@ $routes = [
 
     // REVIEW
     'review-list' => ['controller' => $reviewController, 'method' => 'reviewList'],
+    
+    // =====HƯỚNG DẪN VIÊN =====
+    'hdv-dashboard'   => ['controller' => $hdvController, 'method' => 'dashboard'],
+    'hdv-today'       => ['controller' => $hdvController, 'method' => 'todaySchedule'],
+    'hdv-month'       => ['controller' => $hdvController, 'method' => 'monthSchedule'],
+    'hdv-customers'   => ['controller' => $hdvController, 'method' => 'customerList'],
+    'hdv-attendance'  => ['controller' => $hdvController, 'method' => 'markAttendance'],
 ];
 
 if (array_key_exists($act, $routes)) {
