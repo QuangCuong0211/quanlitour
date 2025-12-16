@@ -11,7 +11,7 @@ class GuideController
     // Hiển thị danh sách khách hàng
     public function guideList()
     {
-        $guides = $this->modelGuide->getAllGuides();
+        $guides = $this->modelGuide->getAll();
         require_once './views/guide/list.php';
     }
 
