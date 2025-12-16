@@ -17,7 +17,19 @@ class TourModel
         ";
         return pdo_query($sql);
     }
+    /* =========================
+       LẤY TẤT CẢ TOUR
+       ========================= */
+    public function getAll()
+    {
+        return pdo_query("SELECT * FROM tours ORDER BY id DESC");
+    }
 
+    // tour chưa có HDV (OPTIONAL – nên dùng)
+    public function getAvailableTours()
+    {
+        return pdo_query("SELECT * FROM tours WHERE guide_id IS NULL");
+    }
     /* =========================
        LẤY 1 TOUR THEO ID
        ========================= */
