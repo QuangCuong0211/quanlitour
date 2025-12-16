@@ -5,7 +5,7 @@ class DepartureModel
 
     public function __construct()
     {
-        require_once __DIR__ . '/../commons/env.php';
+        require_once __DIR__ . '/../commons/env.php';   
 
         $this->conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT);
 

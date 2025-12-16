@@ -70,7 +70,7 @@ $protected_routes = [
     'booking-list', 'booking-add', 'booking-save', 'booking-edit', 'booking-update', 'booking-delete', 'booking-change-status',
     'category-list', 'category-add', 'category-save', 'category-edit', 'category-update', 'category-delete',
     'departure-list', 'departure-add', 'departure-save', 'departure-edit', 'departure-update', 'departure-delete',
-    'customer-list', 'customer-add', 'customer-save', 'customer-edit', 'customer-update', 'customer-delete',
+    'customer-list', 'customer-detail', 'customer-add', 'customer-save', 'customer-edit', 'customer-update', 'customer-delete',
     'review-list'
 ];
 
@@ -133,6 +133,7 @@ $routes = [
 
     // CUSTOMER
     'customer-list' => ['controller' => $customerController, 'method' => 'customerList'],
+    'customer-detail' => ['controller' => $customerController, 'method' => 'customerDetail'],
     'customer-add' => ['controller' => $customerController, 'method' => 'customerAdd'],
     'customer-save' => ['controller' => $customerController, 'method' => 'customerSave'],
     'customer-edit' => ['controller' => $customerController, 'method' => 'customerEdit'],
