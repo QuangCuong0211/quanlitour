@@ -22,27 +22,11 @@ include_once __DIR__ . '/../layout/sidebar.php';
                     <input type="text" name="tour_code" class="form-control"
                            value="<?= htmlspecialchars($tour['tour_code']) ?>" required>
                 </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Ngày đi</label>
-                    <input type="date" name="departure_date" class="form-control"
-                           value="<?= $tour['departure_date'] ?>" required>
-                </div>
-
                 <div class="col-md-3">
                     <label class="form-label">Giá</label>
                     <input type="number" name="price" class="form-control"
                            value="<?= $tour['price'] ?>" required>
                 </div>
-
-                <div class="col-md-3">
-                    <label class="form-label">Trạng thái</label>
-                    <select name="status" class="form-select">
-                        <option value="1" <?= $tour['status'] == 1 ? 'selected' : '' ?>>Đang mở</option>
-                        <option value="0" <?= $tour['status'] == 0 ? 'selected' : '' ?>>Tạm ngưng</option>
-                    </select>
-                </div>
-
                 <div class="col-12">
                     <label class="form-label">Tên tour</label>
                     <input type="text" name="name" class="form-control"

@@ -30,7 +30,6 @@ include_once __DIR__ . '/../layout/sidebar.php';
                             <th width="60">ID</th>
                             <th>Tên tour</th>
                             <th width="150">Giá</th>
-                            <th>Hướng dẫn viên</th>
                             <th width="120">Trạng thái</th>
                             <th width="150" class="text-center">Hành động</th>
                         </tr>
@@ -48,10 +47,6 @@ include_once __DIR__ . '/../layout/sidebar.php';
 
                                 <td>
                                     <?= number_format($tour['price']) ?> đ
-                                </td>
-
-                                <td>
-                                    <?= htmlspecialchars($tour['guide_name'] ?? 'Chưa có') ?>
                                 </td>
 
                                 <td>

@@ -40,14 +40,13 @@ class TourModel
     public function insert($data)
     {
         $sql = "
-            INSERT INTO tours (name, price, guide_id, status)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO tours (name, price, status)
+            VALUES (?, ?, ?)
         ";
         pdo_execute(
             $sql,
             $data['name'],
             $data['price'],
-            $data['guide_id'],
             $data['status']
         );
     }
@@ -59,14 +58,13 @@ class TourModel
     {
         $sql = "
             UPDATE tours
-            SET name = ?, price = ?, guide_id = ?, status = ?
+            SET name = ?, price = ?, status = ?
             WHERE id = ?
         ";
         pdo_execute(
             $sql,
             $data['name'],
             $data['price'],
-            $data['guide_id'],
             $data['status'],
             $id
         );

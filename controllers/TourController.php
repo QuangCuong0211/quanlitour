@@ -28,10 +28,8 @@ class TourController
         $data = [
             'tour_code' => $_POST['tour_code'],
             'name' => $_POST['name'],
-            'departure_date' => $_POST['departure_date'],
             'price' => $_POST['price'],
             'status' => $_POST['status'],
-            'guide_id' => $_POST['guide_id'],
             'note' => $_POST['note']
         ];
 
