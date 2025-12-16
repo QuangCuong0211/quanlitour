@@ -1,99 +1,178 @@
 <?php
 class CustomerModel
 {
-    public $conn;
+    public mysqli $conn;
 
     public function __construct()
     {
         require_once __DIR__ . '/../commons/env.php';
 
         $this->conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT);
-
         if ($this->conn->connect_error) {
             die('Kết nối DB thất bại: ' . $this->conn->connect_error);
         }
+        $this->conn->set_charset('utf8mb4');
     }
 
-    // Lấy tất cả khách hàng
-    public function getAllCustomers()
+    public function getCustomersFromBookings(): array
     {
-        $sql = "SELECT * FROM customers ORDER BY id DESC";
-        $result = $this->conn->query($sql);
+        $sql = "
+            SELECT
+                bc.id,
+                bc.booking_id,
+                bc.name,
+                bc.email,
+                bc.phone,
+                bc.type,
+                b.booking_code,
+                b.start_date,
+                b.end_date,
+                b.status,
+                t.name   AS tour_name,
+                t.tour_id AS tour_code
+            FROM booking_customers bc
+            JOIN bookings b ON bc.booking_id = b.id
+            LEFT JOIN tours t ON b.tour_id = t.id
+            ORDER BY bc.id DESC";
 
-        $data = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $data[] = $row;
-            }
+        $result = $this->conn->query($sql);
+        if (!$result) {
+            return [];
         }
 
-        return $data;
+        $rows = [];
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        $result->free();
+        return $rows;
     }
 
-    // Lấy khách hàng theo id
-    public function getCustomerById($id)
+    public function getBookingCustomerById(int $id): ?array
     {
-        $sql = "SELECT * FROM customers WHERE id = ?";
+        $sql = "
+            SELECT
+                bc.*,
+                b.booking_code,
+                b.start_date,
+                b.end_date,
+                b.note,
+                b.status,
+                t.name   AS tour_name,
+                t.tour_id AS tour_code
+            FROM booking_customers bc
+            JOIN bookings b ON bc.booking_id = b.id
+            LEFT JOIN tours t ON b.tour_id = t.id
+            WHERE bc.id = ?";
+
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
-            return false;
+            return null;
         }
 
-        $stmt->bind_param("i", $id);
+        $stmt->bind_param('i', $id);
         $stmt->execute();
         $result = $stmt->get_result();
-        $customer = $result->fetch_assoc();
+        $customer = $result->fetch_assoc() ?: null;
         $stmt->close();
 
-        return $customer ?: false;
+        return $customer;
     }
 
-    // Thêm khách hàng
-    public function insertCustomer($name, $email, $phone, $address, $city, $identity_number = '', $status = 1)
+    public function updateBookingCustomer(int $id, array $data): bool
     {
-        $sql = "INSERT INTO customers (name, email, phone, address, city, identity_number, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $customer = $this->getBookingCustomerById($id);
+        if (!$customer) {
+            return false;
+        }
+
+        $sql = "UPDATE booking_customers SET name = ?, email = ?, phone = ?, type = ? WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return false;
         }
 
-        $stmt->bind_param("ssssssi", $name, $email, $phone, $address, $city, $identity_number, $status);
+        $stmt->bind_param(
+            'ssssi',
+            $data['name'],
+            $data['email'],
+            $data['phone'],
+            $data['type'],
+            $id
+        );
+
         $ok = $stmt->execute();
         $stmt->close();
+
+        if ($ok) {
+            $this->syncBookingCounters((int)$customer['booking_id']);
+        }
 
         return $ok;
     }
 
-    // Cập nhật khách hàng
-    public function updateCustomer($id, $name, $email, $phone, $address, $city, $identity_number = '', $status = 1)
+    public function deleteBookingCustomer(int $id): bool
     {
-        $sql = "UPDATE customers SET name = ?, email = ?, phone = ?, address = ?, city = ?, identity_number = ?, status = ? WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare('SELECT booking_id FROM booking_customers WHERE id = ?');
         if (!$stmt) {
             return false;
         }
 
-        $stmt->bind_param("ssssssii", $name, $email, $phone, $address, $city, $identity_number, $status, $id);
-        $ok = $stmt->execute();
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $stmt->bind_result($bookingId);
+        $hasRow = $stmt->fetch();
         $stmt->close();
+
+        if (!$hasRow) {
+            return false;
+        }
+
+        $deleteStmt = $this->conn->prepare('DELETE FROM booking_customers WHERE id = ?');
+        if (!$deleteStmt) {
+            return false;
+        }
+
+        $deleteStmt->bind_param('i', $id);
+        $ok = $deleteStmt->execute();
+        $deleteStmt->close();
+
+        if ($ok) {
+            $this->syncBookingCounters((int)$bookingId);
+        }
 
         return $ok;
     }
 
-    // Xóa khách hàng
-    public function deleteCustomer($id)
+    private function syncBookingCounters(int $bookingId): void
     {
-        $sql = "DELETE FROM customers WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare(
+            "SELECT 
+                SUM(CASE WHEN type = 'adult' THEN 1 ELSE 0 END) AS adult,
+                SUM(CASE WHEN type = 'child' THEN 1 ELSE 0 END) AS child
+             FROM booking_customers WHERE booking_id = ?"
+        );
+
         if (!$stmt) {
-            return false;
+            return;
         }
 
-        $stmt->bind_param("i", $id);
-        $ok = $stmt->execute();
+        $stmt->bind_param('i', $bookingId);
+        $stmt->execute();
+        $stmt->bind_result($adult, $child);
+        $stmt->fetch();
         $stmt->close();
 
-        return $ok;
+        $adult = $adult ?? 0;
+        $child = $child ?? 0;
+
+        $update = $this->conn->prepare('UPDATE bookings SET adult = ?, child = ? WHERE id = ?');
+        if (!$update) {
+            return;
+        }
+
+        $update->bind_param('iii', $adult, $child, $bookingId);
+        $update->execute();
+        $update->close();
     }
 }
