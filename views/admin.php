@@ -25,7 +25,7 @@ for ($i = 5; $i >= 0; $i--) {
     $chart_values[] = rand(20000000, 120000000); // số ngẫu nhiên để demo biểu đồ đẹp
 }
 ?>
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -49,7 +49,7 @@ for ($i = 5; $i >= 0; $i--) {
         .chart-card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     </style>
 </head>
-<body>
+<body> -->
 
 <div class="sidebar">
     <h3>Admin</h3>

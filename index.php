@@ -82,7 +82,7 @@ if (in_array($act, $protected_routes) && empty($_SESSION['user_id'])) {
 
 // ==================== DANH SÁCH ROUTE ====================
 $routes = [
-    '/' => ['controller' => $tourController, 'method' => 'Home'],
+    '/' => ['controller' => $tourController, 'method' => 'Admin'],
     'admin' => ['controller' => $tourController, 'method' => 'Admin'],
 
     // AUTH

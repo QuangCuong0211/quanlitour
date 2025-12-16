@@ -8,7 +8,9 @@
 include_once __DIR__ . '/../layout/header.php';
 include_once __DIR__ . '/../layout/sidebar.php';
 ?>
-
+<div class="main-wrapper">
+    <div class="container-fluid">
+        <div class="page-card">
 <div class="container-fluid px-4">
     <h3 class="mt-4 mb-4">Sửa Booking</h3>
 

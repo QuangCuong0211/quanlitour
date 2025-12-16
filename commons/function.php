@@ -1,53 +1,63 @@
 <?php
 
-// Kết nối CSDL qua PDO
-function connectDB() {
-    // Kết nối CSDL
-    $host = DB_HOST;
-    $port = DB_PORT;
-    $dbname = DB_NAME;
+/* =====================================================
+   KẾT NỐI DATABASE (PDO)
+===================================================== */
+function connectDB()
+{
+    static $conn = null;
 
-    try {
-        $conn = new PDO("mysql:host=$host;port=$port;dbname=$dbname", DB_USERNAME, DB_PASSWORD);
+    if ($conn === null) {
+        try {
+            $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8";
+            $conn = new PDO($dsn, DB_USERNAME, DB_PASSWORD);
 
-        // cài đặt chế độ báo lỗi là xử lý ngoại lệ
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        // cài đặt chế độ trả dữ liệu
-        $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    
-        return $conn;
-    } catch (PDOException $e) {
-        echo ("Connection failed: " . $e->getMessage());
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Connection failed: " . $e->getMessage());
+        }
     }
+
+    return $conn;
 }
 
-function uploadFile($file, $folderSave){
-    $file_upload = $file;
-    $pathStorage = $folderSave . rand(10000, 99999) . $file_upload['name'];
+/* =====================================================
+   UPLOAD / DELETE FILE
+===================================================== */
+function uploadFile($file, $folderSave)
+{
+    if (empty($file['name'])) return null;
 
-    $tmp_file = $file_upload['tmp_name'];
-    $pathSave = PATH_ROOT . $pathStorage; // Đường dãn tuyệt đối của file
+    $fileName = rand(10000, 99999) . '_' . basename($file['name']);
+    $pathStorage = $folderSave . $fileName;
+    $pathSave = PATH_ROOT . $pathStorage;
 
-    if (move_uploaded_file($tmp_file, $pathSave)) {
+    if (move_uploaded_file($file['tmp_name'], $pathSave)) {
         return $pathStorage;
     }
     return null;
 }
 
-function deleteFile($file){
-    $pathDelete = PATH_ROOT . $file;
-    if (file_exists($pathDelete)) {
-        unlink($pathDelete); // Hàm unlink dùng để xóa file
+function deleteFile($file)
+{
+    if (!$file) return;
+    $path = PATH_ROOT . $file;
+    if (file_exists($path)) {
+        unlink($path);
     }
 }
 
-// ---------- PDO helper functions (sử dụng cho models) ----------
-function pdo_query($sql) {
+/* =====================================================
+   PDO HELPER FUNCTIONS (DÙNG CHO MODELS)
+===================================================== */
+
+/* ---- SELECT nhiều dòng ---- */
+function pdo_query($sql)
+{
     $params = array_slice(func_get_args(), 1);
     try {
-        $conn = connectDB();
-        $stmt = $conn->prepare($sql);
+        $stmt = connectDB()->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     } catch (PDOException $e) {
@@ -56,11 +66,12 @@ function pdo_query($sql) {
     }
 }
 
-function pdo_query_one($sql) {
+/* ---- SELECT 1 dòng ---- */
+function pdo_query_one($sql)
+{
     $params = array_slice(func_get_args(), 1);
     try {
-        $conn = connectDB();
-        $stmt = $conn->prepare($sql);
+        $stmt = connectDB()->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetch();
     } catch (PDOException $e) {
@@ -69,18 +80,34 @@ function pdo_query_one($sql) {
     }
 }
 
-function pdo_execute($sql) {
+/* ---- SELECT 1 giá trị (COUNT, SUM, ...) ---- */
+function pdo_query_value($sql)
+{
+    $params = array_slice(func_get_args(), 1);
+    try {
+        $stmt = connectDB()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        echo "PDO Query Value Error: " . $e->getMessage();
+        return null;
+    }
+}
+
+/* ---- INSERT / UPDATE / DELETE ---- */
+function pdo_execute($sql)
+{
     $params = array_slice(func_get_args(), 1);
     try {
         $conn = connectDB();
         $stmt = $conn->prepare($sql);
         $stmt->execute($params);
 
-        // Nếu là INSERT, trả về lastInsertId, còn lại trả về số dòng ảnh hưởng
-        $firstWord = strtolower(trim(explode(' ', trim($sql))[0]));
-        if ($firstWord === 'insert') {
+        $type = strtolower(strtok(trim($sql), ' '));
+        if ($type === 'insert') {
             return $conn->lastInsertId();
         }
+
         return $stmt->rowCount();
     } catch (PDOException $e) {
         echo "PDO Execute Error: " . $e->getMessage();
