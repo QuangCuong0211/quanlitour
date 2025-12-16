@@ -223,6 +223,14 @@ document.addEventListener('change', function (e) {
     }
 });
 
+document.getElementById('bookingForm').addEventListener('submit', function (e) {
+    const totalCustomer = document.querySelectorAll('.customer-item').length;
+    if (totalCustomer < 5) {
+        alert('Booking phải có tối thiểu 5 khách hàng');
+        e.preventDefault();
+    }
+});
+
 /* ---------- KHOÁ FORM KHI DONE ---------- */
 <?php if ($booking['status'] === 'done'): ?>
 document.querySelectorAll('input, select, textarea, button')
