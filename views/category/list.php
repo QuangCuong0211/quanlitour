@@ -1,247 +1,88 @@
 <?php
-// Hiển thị thông báo flash message
-if (isset($_SESSION['success'])) {
-    echo '<div style="background: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #c3e6cb;">' . htmlspecialchars($_SESSION['success']) . '</div>';
-    unset($_SESSION['success']);
-}
-if (isset($_SESSION['error'])) {
-    echo '<div style="background: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">' . htmlspecialchars($_SESSION['error']) . '</div>';
-    unset($_SESSION['error']);
-}
+include_once __DIR__ . '/../layout/header.php';
+include_once __DIR__ . '/../layout/sidebar.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Quản lý Danh Mục</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-        }
+<div class="main-wrapper">
+    <div class="container-fluid">
+        <div class="page-card">
 
-        /* SIDEBAR */
-        .sidebar {
-            width: 220px;
-            height: 100vh;
-            background: #1E293B;
-            color: #fff;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding-top: 20px;
-            overflow-y: auto;
-        }
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            margin-top: 0;
-        }
-        .sidebar a {
-            display: block;
-            padding: 12px 20px;
-            color: #fff;
-            text-decoration: none;
-            border-left: 3px solid transparent;
-        }
-        .sidebar a:hover {
-            background: #334155;
-            border-left-color: #10b981;
-        }
-        .sidebar a.active {
-            background: #334155;
-            border-left-color: #10b981;
-        }
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="mb-1">Danh sách danh mục</h3>
+                    <div class="text-muted">Quản lý danh mục tour</div>
+                </div>
 
-        /* MAIN CONTENT */
-        .content {
-            margin-left: 220px;
-            padding: 20px;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .card h2 {
-            margin-top: 0;
-            color: #1e293b;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #10b981;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn:hover {
-            background: #059669;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-edit {
-            background: #f59e0b;
-        }
-
-        .btn-edit:hover {
-            background: #d97706;
-        }
-
-        .btn-secondary {
-            background: #6b7280;
-        }
-
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-        }
-
-        table th {
-            background: #1e293b;
-            color: #fff;
-            padding: 12px;
-            text-align: left;
-            font-weight: bold;
-        }
-
-        table td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        table tr:hover {
-            background: #f9fafb;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .actions a, .actions form {
-            display: inline-block;
-        }
-
-        .actions button {
-            margin: 0;
-            padding: 8px 15px;
-            font-size: 13px;
-        }
-
-        .status {
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .status.active {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status.inactive {
-            background: #fee2e2;
-            color: #7f1d1d;
-        }
-
-        .empty {
-            text-align: center;
-            padding: 40px;
-            color: #6b7280;
-        }
-    </style>
-</head>
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h2>Admin</h2>
-    <a href="?act=admin" ><i class="fas fa-home"></i> Dashboard</a>
-    <a href="?act=tour-list" ><i class="fas fa-map-marked-alt"></i> Quản lý Tour</a>
-    <a href="?act=guide-list" ><i class="fas fa-user-tie"></i> Quản lý HDV</a>
-    <a href="?act=booking-list"><i class="fas fa-calendar-check"></i> Quản lý Booking</a>
-    <a href="?act=category-list" class="active><i class="fas fa-tags"></i> Danh mục</a>
-    <a href="?act=customer-list"><i class="fas fa-users"></i> Khách hàng</a>
-</div>
-
-<!-- MAIN CONTENT -->
-<div class="content">
-    <div class="card">
-        <h2>Danh Sách Danh Mục</h2>
-
-        <?php if (isset($_SESSION['success'])): ?>
-        <?php endif; ?>
-
-        <a href="?act=category-add" class="btn">+ Thêm Danh Mục</a>
-
-        <br><br>
-
-        <?php if (empty($categories)): ?>
-            <div class="empty">
-                <p>Chưa có danh mục nào. <a href="?act=category-add">Thêm danh mục mới</a></p>
+                <a href="?act=category-add" class="btn btn-primary">
+                    + Thêm danh mục
+                </a>
             </div>
-        <?php else: ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 8%;">ID</th>
-                        <th style="width: 25%;">Tên Danh Mục</th>
-                        <th style="width: 30%;">Mô Tả</th>
-                        <th style="width: 15%;">Slug</th>
-                        <th style="width: 10%;">Trạng Thái</th>
-                        <th style="width: 12%;">Hành Động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($categories as $cat): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($cat['id']); ?></td>
-                        <td><?php echo htmlspecialchars($cat['name']); ?></td>
-                        <td><?php echo htmlspecialchars(substr($cat['description'], 0, 50)); ?></td>
-                        <td><?php echo htmlspecialchars($cat['slug']); ?></td>
-                        <td>
-                            <span class="status <?php echo $cat['status'] == 1 ? 'active' : 'inactive'; ?>">
-                                <?php echo $cat['status'] == 1 ? 'Hoạt động' : 'Ẩn'; ?>
-                            </span>
-                        </td>
-                        <td>
-                            <div class="actions">
-                                <a href="?act=category-edit&id=<?php echo $cat['id']; ?>" class="btn btn-edit">Sửa</a>
-                                <a href="?act=category-delete&id=<?php echo $cat['id']; ?>" class="btn btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa?');">Xóa</a>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+
+            <!-- FLASH MESSAGE -->
+            <?php if (!empty($_SESSION['success'])): ?>
+                <div class="alert alert-success">
+                    <?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($_SESSION['error'])): ?>
+                <div class="alert alert-danger">
+                    <?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (empty($categories)): ?>
+                <div class="text-center text-muted py-5">
+                    Chưa có danh mục nào.
+                    <a href="?act=category-add">Thêm danh mục mới</a>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th width="60">ID</th>
+                            <th>Tên danh mục</th>
+                            <th>Mô tả</th>
+                            <th>Slug</th>
+                            <th width="120">Trạng thái</th>
+                            <th width="150" class="text-center">Hành động</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <?php foreach ($categories as $cat): ?>
+                            <tr>
+                                <td><?= $cat['id'] ?></td>
+                                <td><?= htmlspecialchars($cat['name']) ?></td>
+                                <td><?= htmlspecialchars(mb_strimwidth($cat['description'], 0, 60, '...')) ?></td>
+                                <td><?= htmlspecialchars($cat['slug']) ?></td>
+                                <td>
+                                    <?php if ($cat['status'] == 1): ?>
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Ẩn</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-center">
+                                    <a href="?act=category-edit&id=<?= $cat['id'] ?>"
+                                       class="btn btn-warning btn-sm">Sửa</a>
+
+                                    <a href="?act=category-delete&id=<?= $cat['id'] ?>"
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Bạn chắc chắn muốn xóa danh mục này?')">
+                                        Xóa
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+
+        </div>
     </div>
 </div>
 
-</body>
-</html>
+<?php include_once __DIR__ . '/../layout/footer.php'; ?>

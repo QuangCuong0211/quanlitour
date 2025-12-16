@@ -1,42 +1,100 @@
 <?php
 class GuideModel
 {
-    private $conn;
-
-    public function __construct()
-    {
-        require_once __DIR__ . '/../commons/database.php';
-        $this->conn = connectDB();
-    }
-
+    /* =====================
+       DANH SÁCH HDV
+    ====================== */
     public function getAll()
     {
-        return pdo_query("SELECT * FROM guides ORDER BY id DESC");
+        $sql = "
+            SELECT g.*, t.name AS tour_name
+            FROM guides g
+            LEFT JOIN tours t ON t.guide_id = g.id
+            ORDER BY g.id DESC
+        ";
+        return pdo_query($sql);
     }
 
-    public function find($id)
+    /* =====================
+       LẤY 1 HDV
+    ====================== */
+    public function getById($id)
     {
-        return pdo_query_one("SELECT * FROM guides WHERE id = ?", $id);
+        $sql = "
+            SELECT g.*, t.id AS tour_id
+            FROM guides g
+            LEFT JOIN tours t ON t.guide_id = g.id
+            WHERE g.id = ?
+        ";
+        return pdo_query_one($sql, $id);
     }
 
-    public function insert($name, $email, $sdt, $img, $status)
+    /* =====================
+       THÊM HDV
+    ====================== */
+    public function insert($data)
     {
-        return pdo_execute(
-            "INSERT INTO guides(name,email,sdt,img,status) VALUES (?,?,?,?,?)",
-            $name, $email, $sdt, $img, $status
+        $sql = "INSERT INTO guides (name, email, sdt, img, status)
+                VALUES (?, ?, ?, ?, ?)";
+        $guideId = pdo_execute(
+            $sql,
+            $data['name'],
+            $data['email'],
+            $data['sdt'],
+            $data['img'],
+            $data['status']
         );
+
+        // gán tour
+        if (!empty($data['tour_id'])) {
+            pdo_execute(
+                "UPDATE tours SET guide_id = ? WHERE id = ?",
+                $guideId,
+                $data['tour_id']
+            );
+        }
+        return true;
     }
 
-    public function update($id, $name, $email, $sdt, $img, $status)
+    /* =====================
+       CẬP NHẬT HDV
+    ====================== */
+    public function update($data)
     {
-        return pdo_execute(
-            "UPDATE guides SET name=?, email=?, sdt=?, img=?, status=? WHERE id=?",
-            $name, $email, $sdt, $img, $status, $id
+        $sql = "UPDATE guides
+                SET name=?, email=?, sdt=?, img=?, status=?
+                WHERE id=?";
+        pdo_execute(
+            $sql,
+            $data['name'],
+            $data['email'],
+            $data['sdt'],
+            $data['img'],
+            $data['status'],
+            $data['id']
         );
+
+        // bỏ tour cũ
+        pdo_execute("UPDATE tours SET guide_id = NULL WHERE guide_id = ?", $data['id']);
+
+        // gán tour mới
+        if (!empty($data['tour_id'])) {
+            pdo_execute(
+                "UPDATE tours SET guide_id = ? WHERE id = ?",
+                $data['id'],
+                $data['tour_id']
+            );
+        }
+        return true;
     }
 
+    /* =====================
+       XOÁ HDV
+    ====================== */
     public function delete($id)
     {
-        return pdo_execute("DELETE FROM guides WHERE id=?", $id);
+        pdo_execute("UPDATE tours SET guide_id = NULL WHERE guide_id = ?", $id);
+        pdo_execute("DELETE FROM guides WHERE id = ?", $id);
+        return true;
     }
 }

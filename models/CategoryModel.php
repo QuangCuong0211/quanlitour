@@ -119,4 +119,17 @@ class CategoryModel
 
         return $ok;
     }
+    // Kiểm tra danh mục có tour liên quan không
+    public function hasTour($categoryId)
+{
+    $sql = "SELECT COUNT(*) FROM tours WHERE category_id = ?";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("i", $categoryId);
+    $stmt->execute();
+    $stmt->bind_result($count);
+    $stmt->fetch();
+    $stmt->close();
+    return $count > 0;
+}
+
 }

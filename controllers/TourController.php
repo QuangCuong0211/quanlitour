@@ -1,14 +1,13 @@
 <?php
-
 class TourController
 {
     protected $tourModel;
-    protected $guideModel;
+    protected $categoryModel;
 
     public function __construct()
     {
         $this->tourModel = new TourModel();
-        $this->guideModel = new GuideModel();
+        $this->categoryModel = new CategoryModel();
     }
 
     public function tourList()
@@ -19,23 +18,28 @@ class TourController
 
     public function tourAdd()
     {
-        $guides = $this->guideModel->getAll();
+        $categories = $this->categoryModel->getAllCategories();
         require 'views/tour/add.php';
     }
 
     public function tourSave()
     {
         $data = [
-            'tour_code' => $_POST['tour_code'],
-            'name' => $_POST['name'],
-            'price' => $_POST['price'],
-            'status' => $_POST['status'],
-            'note' => $_POST['note']
+            'name'        => trim($_POST['name']),
+            'price'       => $_POST['price'],
+            'category_id' => $_POST['category_id'] ?? null,
+            'status'      => $_POST['status']
         ];
+
+        if ($data['name'] === '') {
+            $_SESSION['error'] = 'Tên tour không được để trống';
+            header('Location: ?act=tour-add');
+            exit;
+        }
 
         $this->tourModel->insert($data);
         $_SESSION['success'] = 'Thêm tour thành công';
-        header('Location: index.php?act=tour-list');
+        header('Location: ?act=tour-list');
         exit;
     }
 
@@ -43,43 +47,39 @@ class TourController
     {
         $id = $_GET['id'];
         $tour = $this->tourModel->getOne($id);
-        $guides = $this->guideModel->getAll();
+        $categories = $this->categoryModel->getAllCategories();
         require 'views/tour/edit.php';
     }
 
     public function tourUpdate()
     {
         $id = $_POST['id'];
+
         $data = [
-            'tour_code' => $_POST['tour_code'],
-            'name' => $_POST['name'],
-            'departure_date' => $_POST['departure_date'],
-            'price' => $_POST['price'],
-            'status' => $_POST['status'],
-            'guide_id' => $_POST['guide_id'],
-            'note' => $_POST['note']
+            'name'        => trim($_POST['name']),
+            'price'       => $_POST['price'],
+            'category_id' => $_POST['category_id'] ?? null,
+            'status'      => $_POST['status']
         ];
 
         $this->tourModel->update($id, $data);
         $_SESSION['success'] = 'Cập nhật tour thành công';
-        header('Location: index.php?act=tour-list');
+        header('Location: ?act=tour-list');
         exit;
     }
 
-   public function tourDelete()
-{
-    $id = (int)$_GET['id'];
+    public function tourDelete()
+    {
+        $id = (int)$_GET['id'];
 
-    if ($this->tourModel->hasBooking($id)) {
-        $_SESSION['error'] = "Không thể xoá tour đã có booking!";
+        if ($this->tourModel->hasBooking($id)) {
+            $_SESSION['error'] = "Không thể xoá tour đã có booking!";
+            header("Location: ?act=tour-list");
+            exit;
+        }
+
+        $this->tourModel->delete($id);
+        $_SESSION['success'] = "Đã xoá tour!";
         header("Location: ?act=tour-list");
-        exit;
     }
-
-    $this->tourModel->delete($id);
-    $_SESSION['success'] = "Đã xoá tour!";
-    header("Location: ?act=tour-list");
-}
-
-
 }

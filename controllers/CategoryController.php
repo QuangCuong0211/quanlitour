@@ -8,97 +8,134 @@ class CategoryController
         $this->modelCategory = new CategoryModel();
     }
 
-    // Hiển thị danh sách danh mục
+    /* =========================
+       DANH SÁCH DANH MỤC
+    ========================= */
     public function categoryList()
     {
         $categories = $this->modelCategory->getAllCategories();
         require_once './views/category/list.php';
     }
 
-    // Hiển thị form thêm danh mục
+    /* =========================
+       FORM THÊM DANH MỤC
+    ========================= */
     public function categoryAdd()
     {
         require_once './views/category/add.php';
     }
 
-    // Lưu danh mục mới
+    /* =========================
+       LƯU DANH MỤC
+    ========================= */
     public function categorySave()
     {
-        if (empty($_POST['name']) || empty($_POST['slug'])) {
-            $_SESSION['error'] = "Tên danh mục và slug không được để trống!";
-            header("Location: ?act=category-add");
-            exit();
-        }
-
-        $name = trim($_POST['name']);
+        $name = trim($_POST['name'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        $slug = trim($_POST['slug']);
+        $slug = trim($_POST['slug'] ?? '');
         $status = intval($_POST['status'] ?? 1);
 
-        if ($this->modelCategory->insertCategory($name, $description, $slug, $status)) {
+        // VALIDATE
+        if ($name === '' || $slug === '') {
+            $_SESSION['error'] = "Tên danh mục và slug không được để trống!";
+            header("Location: ?act=category-add");
+            exit;
+        }
+
+        if (!preg_match('/^[a-z0-9-]+$/', $slug)) {
+            $_SESSION['error'] = "Slug chỉ được chứa chữ thường, số và dấu -";
+            header("Location: ?act=category-add");
+            exit;
+        }
+
+        $ok = $this->modelCategory->insertCategory($name, $description, $slug, $status);
+
+        if ($ok) {
             $_SESSION['success'] = "Thêm danh mục thành công!";
         } else {
             $_SESSION['error'] = "Thêm danh mục thất bại!";
         }
 
         header("Location: ?act=category-list");
-        exit();
+        exit;
     }
 
-    // Hiển thị form chỉnh sửa danh mục
+    /* =========================
+       FORM SỬA DANH MỤC
+    ========================= */
     public function categoryEdit()
     {
-        $id = $_GET['id'] ?? 0;
+        $id = (int)($_GET['id'] ?? 0);
         $category = $this->modelCategory->getCategoryById($id);
 
         if (!$category) {
             $_SESSION['error'] = "Danh mục không tồn tại!";
             header("Location: ?act=category-list");
-            exit();
+            exit;
         }
 
         require_once './views/category/edit.php';
     }
 
-    // Cập nhật danh mục
+    /* =========================
+       CẬP NHẬT DANH MỤC
+    ========================= */
     public function categoryUpdate()
     {
-        $id = intval($_POST['id']);
-        $name = trim($_POST['name']);
+        $id = (int)($_POST['id'] ?? 0);
+        $name = trim($_POST['name'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        $slug = trim($_POST['slug']);
+        $slug = trim($_POST['slug'] ?? '');
         $status = intval($_POST['status'] ?? 1);
 
-        if ($id <= 0 || empty($name) || empty($slug)) {
+        // VALIDATE
+        if ($id <= 0 || $name === '' || $slug === '') {
             $_SESSION['error'] = "Dữ liệu không hợp lệ!";
-            header("Location: ?act=category-edit&id=$id");
-            exit();
+            header("Location: ?act=category-edit&id=" . $id);
+            exit;
+        }
+
+        if (!preg_match('/^[a-z0-9-]+$/', $slug)) {
+            $_SESSION['error'] = "Slug không hợp lệ!";
+            header("Location: ?act=category-edit&id=" . $id);
+            exit;
         }
 
         $result = $this->modelCategory->updateCategory($id, $name, $description, $slug, $status);
 
-        if ($result === true || (is_array($result) && $result['status'] === 'updated')) {
+        if (is_array($result) && $result['status'] === 'updated') {
             $_SESSION['success'] = "Cập nhật danh mục thành công!";
         } else {
-            $_SESSION['error'] = "Cập nhật danh mục thất bại!";
+            $_SESSION['success'] = "Không có thay đổi nào!";
         }
 
         header("Location: ?act=category-list");
-        exit();
+        exit;
     }
 
-    // Xóa danh mục
+    /* =========================
+       XOÁ DANH MỤC
+    ========================= */
     public function categoryDelete()
     {
-        $id = intval($_GET['id']);
+        $id = (int)($_GET['id'] ?? 0);
 
-        if ($this->modelCategory->deleteCategory($id)) {
-            $_SESSION['success'] = "Xóa danh mục thành công!";
-        } else {
-            $_SESSION['error'] = "Xóa danh mục thất bại!";
+        if ($id <= 0) {
+            $_SESSION['error'] = "ID không hợp lệ!";
+            header("Location: ?act=category-list");
+            exit;
         }
 
+        // KHÔNG CHO XOÁ NẾU CÓ TOUR
+        if (method_exists($this->modelCategory, 'hasTour') && $this->modelCategory->hasTour($id)) {
+            $_SESSION['error'] = "Không thể xoá danh mục đang có tour!";
+            header("Location: ?act=category-list");
+            exit;
+        }
+
+        $this->modelCategory->deleteCategory($id);
+        $_SESSION['success'] = "Đã xoá danh mục!";
         header("Location: ?act=category-list");
-        exit();
+        exit;
     }
 }

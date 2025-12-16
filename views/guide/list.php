@@ -44,25 +44,33 @@ include_once __DIR__ . '/../layout/sidebar.php';
                         <?php foreach ($guides as $g): ?>
 
                             <?php
-                            $img = $g['img']
-                                ? "uploads/" . htmlspecialchars($g['img'])
-                                : "uploads/no-image.png";
+                            if (!empty($g['img']) && file_exists('./uploads/guides/' . $g['img'])) {
+                                $img = 'uploads/guides/' . $g['img'];
+                            } else {
+                                $img = 'uploads/no-image.png';
+                            }
                             ?>
 
                             <tr>
                                 <td><?= $g['id'] ?></td>
+
                                 <td>
                                     <img src="<?= $img ?>" width="60" height="60"
                                          style="object-fit:cover;border-radius:6px">
                                 </td>
-                                <td><?= htmlspecialchars($g['name']) ?></td>
-                                <td><?= htmlspecialchars($g['email']) ?></td>
-                                <td><?= htmlspecialchars($g['phone']) ?></td>
+
+                                <td><?= htmlspecialchars($g['name'] ?? '') ?></td>
+
+                                <td><?= htmlspecialchars($g['email'] ?? '') ?></td>
+
+                                <td><?= htmlspecialchars($g['sdt'] ?? '') ?></td>
+
                                 <td>
-                                    <?= $g['tours']
-                                        ? htmlspecialchars($g['tours'])
+                                    <?= !empty($g['tour_name'])
+                                        ? htmlspecialchars($g['tour_name'])
                                         : '<span class="text-muted">Chưa có tour</span>' ?>
                                 </td>
+
                                 <td>
                                     <?php if ($g['status'] == 1): ?>
                                         <span class="badge bg-success">Hoạt động</span>
@@ -70,9 +78,11 @@ include_once __DIR__ . '/../layout/sidebar.php';
                                         <span class="badge bg-secondary">Tạm nghỉ</span>
                                     <?php endif; ?>
                                 </td>
+
                                 <td class="text-center">
                                     <a href="?act=guide-edit&id=<?= $g['id'] ?>"
                                        class="btn btn-warning btn-sm">Sửa</a>
+
                                     <a href="?act=guide-delete&id=<?= $g['id'] ?>"
                                        class="btn btn-danger btn-sm"
                                        onclick="return confirm('Xóa HDV này?')">

@@ -1,115 +1,37 @@
 <?php
-// ================= FLASH MESSAGE =================
-function flash($key)
-{
-    if (!empty($_SESSION[$key])) {
-        $color  = $key === 'success' ? '#d4edda' : '#f8d7da';
-        $border = $key === 'success' ? '#c3e6cb' : '#f5c6cb';
-        $text   = $key === 'success' ? '#155724' : '#721c24';
-
-        echo "<div style='background:$color;color:$text;padding:15px;margin-bottom:20px;
-                border-radius:8px;border:1px solid $border;max-width:1400px;margin:20px auto;'>"
-            . htmlspecialchars($_SESSION[$key]) .
-            "</div>";
-        unset($_SESSION[$key]);
-    }
-}
-flash('success');
-flash('error');
+include_once __DIR__ . '/../layout/header.php';
+include_once __DIR__ . '/../layout/sidebar.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="vi">
+<div class="main-wrapper">
+    <div class="container-fluid">
+        <div class="page-card">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Quản lý Booking</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f4f4;
-        }
-
-        .sidebar {
-            width: 220px;
-            height: 100vh;
-            background: #1E293B;
-            color: #fff;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding-top: 20px;
-        }
-
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 12px 20px;
-            color: #cbd5e1;
-            text-decoration: none;
-            border-left: 3px solid transparent;
-        }
-
-        .sidebar a:hover,
-        .sidebar a.active {
-            background: #334155;
-            border-left-color: #10b981;
-            color: #fff;
-        }
-
-        .content {
-            margin-left: 220px;
-            padding: 30px;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .note-cell {
-            max-width: 240px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    </style>
-</head>
-
-<body>
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <h2>Admin</h2>
-        <a href="?act=tour-list">Quản lý Tour</a>
-        <a href="?act=guide-list">Quản lý HDV</a>
-        <a href="?act=booking-list" class="active">Quản lý Booking</a>
-        <a href="?act=category-list">Danh mục</a>
-        <a href="?act=customer-list">Khách hàng</a>
-    </div>
-
-    <!-- CONTENT -->
-    <div class="content">
-        <div class="card">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Danh sách Booking</h2>
-                <a href="?act=booking-add" class="btn btn-success">+ Thêm Booking</a>
+                <div>
+                    <h3 class="mb-1">Danh sách Booking</h3>
+                    <div class="text-muted">Quản lý booking tour</div>
+                </div>
+                <a href="?act=booking-add" class="btn btn-success">
+                    + Thêm Booking
+                </a>
             </div>
+
+            <?php if (!empty($_SESSION['success'])): ?>
+                <div class="alert alert-success">
+                    <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($_SESSION['error'])): ?>
+                <div class="alert alert-danger">
+                    <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+                </div>
+            <?php endif; ?>
 
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-dark text-center">
+                    <thead class="table-light text-center">
                         <tr>
                             <th>STT</th>
                             <th>Mã</th>
@@ -117,88 +39,45 @@ flash('error');
                             <th>Tổng tiền</th>
                             <th>Ngày đi</th>
                             <th>Ngày về</th>
-                            <th>Ghi chú</th>
                             <th>Trạng thái</th>
-                            <th width="120">Hành động</th>
+                            <th width="160">Hành động</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         <?php if (!empty($bookings)): ?>
-                            <?php $stt = 1;
-                            foreach ($bookings as $item): ?>
+                            <?php $i = 1; foreach ($bookings as $b): ?>
                                 <tr>
-                                    <td class="text-center fw-bold"><?= $stt++ ?></td>
-
+                                    <td class="text-center"><?= $i++ ?></td>
                                     <td class="text-center">
                                         <span class="badge bg-primary">
-                                            <?= htmlspecialchars($item['booking_code']) ?>
+                                            <?= htmlspecialchars($b['booking_code']) ?>
                                         </span>
                                     </td>
-
                                     <td class="text-center">
-                                        <strong><?= $item['adult'] + $item['child'] ?> khách</strong><br>
-                                        <small class="text-muted">
-                                            NL: <?= $item['adult'] ?> | TE: <?= $item['child'] ?>
-                                        </small>
+                                        <?= $b['adult'] + $b['child'] ?> khách
                                     </td>
-
-
-                                    <td class="text-end fw-bold text-danger">
-                                        <?= number_format($item['total_price']) ?> đ
+                                    <td class="text-end text-danger fw-bold">
+                                        <?= number_format($b['total_price']) ?> đ
                                     </td>
-
-
-                                    <td class="text-center"><?= htmlspecialchars($item['start_date']) ?></td>
-                                    <td class="text-center"><?= htmlspecialchars($item['end_date']) ?></td>
-
-                                    <td class="note-cell" title="<?= htmlspecialchars($item['note']) ?>">
-                                        <?= htmlspecialchars($item['note']) ?>
-                                    </td>
-
+                                    <td class="text-center"><?= $b['start_date'] ?></td>
+                                    <td class="text-center"><?= $b['end_date'] ?></td>
                                     <td class="text-center">
-                                        <?php
-                                        $disabled = $item['status'] === 'done' ? 'disabled' : '';
-                                        ?>
-                                        <form action="?act=booking-change-status" method="POST">
-                                            <input type="hidden" name="id" value="<?= $item['id'] ?>">
-
-                                            <select name="status"
-                                                class="form-select form-select-sm
-                                                    <?= $item['status'] == 'pending' ? 'border-warning' : '' ?>
-                                                    <?= $item['status'] == 'deposit' ? 'border-primary' : '' ?>
-                                                    <?= $item['status'] == 'done' ? 'border-success' : '' ?>
-                                                    <?= $item['status'] == 'cancel' ? 'border-danger' : '' ?>"
-                                                onchange="this.form.submit()"
-                                                <?= $disabled ?>>
-
-                                                <option value="pending" <?= $item['status'] == 'pending' ? 'selected' : '' ?>> Chờ</option>
-                                                <option value="deposit" <?= $item['status'] == 'deposit' ? 'selected' : '' ?>> Đã cọc</option>
-                                                <option value="done" <?= $item['status'] == 'done' ? 'selected' : '' ?>> Hoàn tất</option>
-                                                <option value="cancel" <?= $item['status'] == 'cancel' ? 'selected' : '' ?>> Hủy</option>
-                                            </select>
-                                        </form>
+                                        <span class="badge bg-secondary">
+                                            <?= strtoupper($b['status']) ?>
+                                        </span>
                                     </td>
-
-
                                     <td class="text-center">
-                                        <?php if ($item['status'] !== 'done'): ?>
-                                            <a href="?act=booking-edit&id=<?= $item['id'] ?>" class="btn btn-warning btn-sm">Sửa</a>
-                                        <?php endif; ?>
-                                        <a href="?act=booking-delete&id=<?= $item['id'] ?>"
-                                            onclick="return confirm('Xóa booking này?')"
-                                            class="btn btn-danger btn-sm">Xóa</a>
-                                        <button
-                                            class="btn btn-info btn-sm"
-                                            onclick="showDetail(<?= $item['id'] ?>)">
-                                            Chi tiết
-                                        </button>
+                                        <a href="?act=booking-edit&id=<?= $b['id'] ?>"
+                                           class="btn btn-warning btn-sm">Sửa</a>
+                                        <a href="?act=booking-delete&id=<?= $b['id'] ?>"
+                                           onclick="return confirm('Xóa booking này?')"
+                                           class="btn btn-danger btn-sm">Xóa</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-5">
+                                <td colspan="8" class="text-center text-muted">
                                     Chưa có booking nào
                                 </td>
                             </tr>
@@ -206,37 +85,9 @@ flash('error');
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
-    <!-- MODAL CHI TIẾT BOOKING -->
-    <div class="modal fade" id="bookingDetailModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Chi tiết Booking</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+</div>
 
-                <div class="modal-body" id="booking-detail-content">
-                    <div class="text-center text-muted">Đang tải dữ liệu...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        function showDetail(id) {
-            fetch('?act=booking-detail&id=' + id)
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById('booking-detail-content').innerHTML = html;
-                    new bootstrap.Modal(
-                        document.getElementById('bookingDetailModal')
-                    ).show();
-                });
-        }
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+<?php include_once __DIR__ . '/../layout/footer.php'; ?>
