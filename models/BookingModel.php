@@ -136,6 +136,7 @@ class BookingModel
 
             $stmt = $this->conn->prepare(
                 "UPDATE bookings SET
+                    tour_id = ?,
                     adult = ?,
                     child = ?,
                     total_price = ?,
@@ -146,6 +147,7 @@ class BookingModel
             );
 
             $stmt->execute([
+                $booking['tour_id'],
                 $booking['adult'],
                 $booking['child'],
                 $booking['total_price'],
