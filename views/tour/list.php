@@ -29,13 +29,14 @@ include_once __DIR__ . '/../layout/sidebar.php';
                         <tr>
                             <th width="60">ID</th>
                             <th>Tên tour</th>
+                            <th>Danh mục</th>
                             <th width="150">Giá</th>
                             <th width="120">Trạng thái</th>
                             <th width="150" class="text-center">Hành động</th>
                         </tr>
                     </thead>
-                    <tbody>
 
+                    <tbody>
                     <?php if (!empty($tours)): ?>
                         <?php foreach ($tours as $tour): ?>
                             <tr>
@@ -43,6 +44,12 @@ include_once __DIR__ . '/../layout/sidebar.php';
 
                                 <td>
                                     <?= htmlspecialchars($tour['name']) ?>
+                                </td>
+
+                                <td>
+                                    <?= !empty($tour['category_name'])
+                                        ? htmlspecialchars($tour['category_name'])
+                                        : '<span class="text-muted">Chưa phân loại</span>' ?>
                                 </td>
 
                                 <td>
@@ -78,7 +85,6 @@ include_once __DIR__ . '/../layout/sidebar.php';
                             </td>
                         </tr>
                     <?php endif; ?>
-
                     </tbody>
                 </table>
             </div>

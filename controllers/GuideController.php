@@ -23,7 +23,7 @@ class GuideController
     public function guideAdd()
     {
         $tourModel = new TourModel();
-        $tours = $tourModel->getAll();
+        $tours = $tourModel->getAllTours();
         require './views/guide/add.php';
     }
 
@@ -90,7 +90,7 @@ class GuideController
     {
         $guide = $this->model->getById($_GET['id']);
         $tourModel = new TourModel();
-        $tours = $tourModel->getAll();
+        $tours = $tourModel->getAllTours();
         require './views/guide/edit.php';
     }
 
