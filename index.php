@@ -21,6 +21,8 @@ require_once './controllers/DepartureController.php';
 require_once './controllers/CustomerController.php';
 require_once './controllers/GuideController.php';
 require_once './controllers/ReviewController.php';
+require_once './controllers/AdminController.php';
+
 
 $act = $_GET['act'] ?? '/';
 
@@ -31,6 +33,8 @@ $departureController = new DepartureController();
 $customerController = new CustomerController();
 $guideController = new GuideController();
 $reviewController = new ReviewController();
+$adminController = new AdminController();
+
 
 // ==================== XỬ LÝ ĐĂNG NHẬP ====================
 if ($act === 'login') {
@@ -42,7 +46,7 @@ if ($act === 'login') {
 
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id']   = $user['id'];
-            $_SESSION['user_name'] = $user['fullname'];           // ←←←← SỬA DÒNG NÀY
+            $_SESSION['user_name'] = $user['fullname'];          
             $_SESSION['user_role'] = $user['role'];
 
             $_SESSION['success'] = "Chào mừng {$user['fullname']} quay lại!";
@@ -82,8 +86,8 @@ if (in_array($act, $protected_routes) && empty($_SESSION['user_id'])) {
 
 // ==================== DANH SÁCH ROUTE ====================
 $routes = [
-    '/' => ['controller' => $tourController, 'method' => 'Admin'],
-    'admin' => ['controller' => $tourController, 'method' => 'Admin'],
+    '/' => ['controller' => $adminController, 'method' => 'dashboard'],
+    'admin' => ['controller' => $adminController, 'method' => 'dashboard'],
 
     // AUTH
     'login' => ['controller' => null, 'method' => null],

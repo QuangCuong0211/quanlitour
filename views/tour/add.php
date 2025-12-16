@@ -23,12 +23,6 @@ include_once __DIR__ . '/../layout/sidebar.php';
                     <label class="form-label fw-semibold">Mã tour</label>
                     <input type="text" name="tour_code" class="form-control" required>
                 </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Ngày đi</label>
-                    <input type="date" name="departure_date" class="form-control" required>
-                </div>
-
                 <div class="col-md-3">
                     <label class="form-label fw-semibold">Giá</label>
                     <input type="number" name="price" class="form-control" required>
@@ -47,17 +41,6 @@ include_once __DIR__ . '/../layout/sidebar.php';
                     <input type="text" name="name" class="form-control" required>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Hướng dẫn viên</label>
-                    <select name="guide_id" class="form-select" required>
-                        <option value="">-- Chọn HDV --</option>
-                        <?php foreach ($guides as $g): ?>
-                            <option value="<?= $g['id'] ?>">
-                                <?= htmlspecialchars($g['name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
                 <div class="col-12 text-end mt-3">
                     <button class="btn btn-primary">Lưu tour</button>
                 </div>

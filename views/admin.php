@@ -25,7 +25,7 @@ for ($i = 5; $i >= 0; $i--) {
     $chart_values[] = rand(20000000, 120000000); // số ngẫu nhiên để demo biểu đồ đẹp
 }
 ?>
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -49,17 +49,9 @@ for ($i = 5; $i >= 0; $i--) {
         .chart-card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     </style>
 </head>
-<body> -->
+<body>
 
-<div class="sidebar">
-    <h3>Admin</h3>
-    <a href="?act=admin" class="active"><i class="fas fa-home"></i> Dashboard</a>
-    <a href="?act=tour-list"><i class="fas fa-map-marked-alt"></i> Quản lý Tour</a>
-    <a href="?act=guide-list"><i class="fas fa-user-tie"></i> Quản lý HDV</a>
-    <a href="?act=booking-list"><i class="fas fa-calendar-check"></i> Quản lý Booking</a>
-    <a href="?act=category-list"><i class="fas fa-tags"></i> Danh mục</a>
-    <a href="?act=customer-list"><i class="fas fa-users"></i> Khách hàng</a>
-</div>
+
 
 <div class="main">
     <div class="top-bar d-flex justify-content-between align-items-center">

@@ -1,99 +1,42 @@
 <?php
 class GuideModel
 {
-    public $conn;
+    private $conn;
 
     public function __construct()
     {
-        require_once __DIR__ . '/../commons/env.php';
-
-        $this->conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT);
-
-        if ($this->conn->connect_error) {
-            die('Kết nối DB thất bại: ' . $this->conn->connect_error);
-        }
+        require_once __DIR__ . '/../commons/database.php';
+        $this->conn = connectDB();
     }
- 
-    // Lấy tất cả khách hàng
+
     public function getAll()
     {
-        $sql = "SELECT * FROM guides ORDER BY id DESC";
-        $result = $this->conn->query($sql);
-
-        $data = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $data[] = $row;
-            }
-        }
-
-        return $data;
+        return pdo_query("SELECT * FROM guides ORDER BY id DESC");
     }
 
-    // Lấy khách hàng theo id
-    public function getGuideById($id)
+    public function find($id)
     {
-        $sql = "SELECT * FROM guides WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $guide = $result->fetch_assoc();
-        $stmt->close();
-
-        return $guide ?: false;
+        return pdo_query_one("SELECT * FROM guides WHERE id = ?", $id);
     }
 
-    // Thêm khách hàng
-    public function insertGuide($name, $email, $sdt, $img, $exp, $language)
+    public function insert($name, $email, $sdt, $img, $status)
     {
-        $sql = "INSERT INTO guides (name, email, sdt, img, exp, language) 
-                VALUES (?, ?, ?,?, ?, ?)";
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param("ssisss", $name, $email, $sdt, $img, $exp, $language);
-        $ok = $stmt->execute();
-        $stmt->close();
-
-        return $ok;
+        return pdo_execute(
+            "INSERT INTO guides(name,email,sdt,img,status) VALUES (?,?,?,?,?)",
+            $name, $email, $sdt, $img, $status
+        );
     }
 
-    // Cập nhật khách hàng
-    public function updateGuide($id, $name, $email,  $sdt, $img, $exp, $language)
+    public function update($id, $name, $email, $sdt, $img, $status)
     {
-        $sql = "UPDATE guides SET name = ?, email = ?, sdt = ?, img = ?, exp = ?, language = ? WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param("ssssssi", $name, $email, $sdt, $img, $exp, $language, $id);
-        $ok = $stmt->execute();
-        $stmt->close();
-
-        return $ok;
+        return pdo_execute(
+            "UPDATE guides SET name=?, email=?, sdt=?, img=?, status=? WHERE id=?",
+            $name, $email, $sdt, $img, $status, $id
+        );
     }
 
-    // Xóa khách hàng
-    public function deleteGuide($id)
+    public function delete($id)
     {
-        $sql = "DELETE FROM guides WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param("i", $id);
-        $ok = $stmt->execute();
-        $stmt->close();
-
-        return $ok;
+        return pdo_execute("DELETE FROM guides WHERE id=?", $id);
     }
 }
