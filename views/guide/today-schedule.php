@@ -5,10 +5,10 @@ $act = 'hdv-today';
 ob_start();
 
 $guide_id = $_SESSION['user_id'];
-$today = date('Y-m-d'); // Ngày hôm nay
+$today = date('Y-m-d'); // Ngày hôm nay (ví dụ: 2025-12-17)
 
 $tours_today = pdo_query("
-    SELECT d.*, t.name AS tour_name, t.description, t.price
+    SELECT d.*, t.name AS tour_name, t.price
     FROM departures d
     JOIN tours t ON d.tour_id = t.id
     WHERE d.guide_id = ? AND d.departure_date = ?
@@ -17,7 +17,9 @@ $tours_today = pdo_query("
 $total_today = count($tours_today);
 ?>
 
-<h4 class="mb-4 text-success fw-bold"><i class="fas fa-calendar-day"></i> Lịch làm việc hôm nay - <?= date('d/m/Y', strtotime($today)) ?></h4>
+<h4 class="mb-4 text-success fw-bold">
+    <i class="fas fa-calendar-day"></i> Lịch làm việc hôm nay - <?= date('d/m/Y', strtotime($today)) ?>
+</h4>
 
 <?php if ($total_today > 0): ?>
 <div class="row">
@@ -32,11 +34,21 @@ $total_today = count($tours_today);
     <div class="col-md-6 mb-4">
         <div class="table-card h-100">
             <h5 class="text-primary"><strong><?= htmlspecialchars($tour['tour_name']) ?></strong></h5>
-            <p><i class="fas fa-info-circle"></i> <strong>Mô tả:</strong> <?= htmlspecialchars($tour['description'] ?? 'Không có mô tả') ?></p>
-            <p><i class="fas fa-users"></i> <strong>Số khách:</strong> <span class="badge bg-primary fs-5"><?= $cust_count ?></span></p>
-            <p><i class="fas fa-money-bill"></i> <strong>Giá tour:</strong> <?= number_format($tour['price']) ?>đ</p>
+            
+            <!-- Bỏ phần mô tả vì table tours không có cột description -->
+            <!-- Nếu sau này bạn thêm cột description thì bỏ comment dòng dưới -->
+            <!-- <p><i class="fas fa-info-circle"></i> <strong>Mô tả:</strong> <?= htmlspecialchars($tour['description'] ?? 'Không có mô tả') ?></p> -->
+            
+            <p><i class="fas fa-users"></i> <strong>Số khách:</strong> 
+                <span class="badge bg-primary fs-5"><?= $cust_count ?></span>
+            </p>
+            <p><i class="fas fa-money-bill"></i> <strong>Giá tour:</strong> 
+                <?= number_format($tour['price'] ?? 0) ?>đ
+            </p>
+            
             <div class="mt-3">
-                <a href="index.php?act=hdv-customers&departure_id=<?= $tour['id'] ?>" class="btn btn-success">
+                <a href="index.php?act=hdv-customers&departure_id=<?= $tour['id'] ?>" 
+                   class="btn btn-success">
                     <i class="fas fa-users"></i> Xem danh sách & điểm danh khách
                 </a>
             </div>
