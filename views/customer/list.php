@@ -42,6 +42,7 @@ function flash($key)
                             <th>Mã booking</th>
                             <th>Ngày đi</th>
                             <th>Ngày về</th>
+                            <th>Trạng thái</th>
                             <th class="text-center" style="width:180px;">Hành động</th>
                         </tr>
                     </thead>
@@ -59,7 +60,6 @@ function flash($key)
                                 </td>
                                 <td>
                                     <?= htmlspecialchars($cust['tour_name'] ?? 'Chưa rõ') ?><br>
-                                    <small class="text-muted">Mã tour: <?= htmlspecialchars($cust['tour_code'] ?? '-') ?></small>
                                 </td>
                                 <td>
                                     <span class="badge bg-primary"><?= htmlspecialchars($cust['booking_code']) ?></span>
@@ -67,11 +67,19 @@ function flash($key)
                                 <td><?= htmlspecialchars($cust['start_date']) ?></td>
                                 <td><?= htmlspecialchars($cust['end_date']) ?></td>
                                 <td class="text-center">
+                                    <?php if (!empty($cust['attended'])): ?>
+                                        <span class="badge bg-success">Đã điểm danh</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Chưa điểm danh</span>
+                                    <?php endif; ?>
+                                </td>
+
+                                <td class="text-center">
                                     <a href="?act=customer-detail&id=<?= $cust['id'] ?>" class="btn btn-info btn-sm">Chi tiết</a>
                                     <a href="?act=customer-edit&id=<?= $cust['id'] ?>" class="btn btn-warning btn-sm">Sửa</a>
                                     <a href="?act=customer-delete&id=<?= $cust['id'] ?>"
-                                       class="btn btn-danger btn-sm"
-                                       onclick="return confirm('Xóa khách hàng này khỏi booking?');">Xóa</a>
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Xóa khách hàng này khỏi booking?');">Xóa</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

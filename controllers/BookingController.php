@@ -45,7 +45,7 @@ class BookingController
         $names  = $_POST['customer_name'] ?? [];
         $emails = $_POST['email'] ?? [];
         $phones = $_POST['phone'] ?? [];
-        $types  = $_POST['customer_type'] ?? [];
+        $types  = $_POST['type'] ?? [];
 
         /* ==== VALIDATE ==== */
         if (count($names) < 5) {

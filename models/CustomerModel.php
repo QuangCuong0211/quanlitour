@@ -14,6 +14,9 @@ class CustomerModel
         $this->conn->set_charset('utf8mb4');
     }
 
+    /* ===============================
+       ADMIN / HDV: DANH SÁCH KHÁCH
+    =============================== */
     public function getCustomersFromBookings(): array
     {
         $sql = "
@@ -24,16 +27,17 @@ class CustomerModel
                 bc.email,
                 bc.phone,
                 bc.type,
+                bc.attended,
                 b.booking_code,
                 b.start_date,
                 b.end_date,
                 b.status,
-                t.name   AS tour_name,
-                t.tour_id AS tour_code
+                t.name AS tour_name
             FROM booking_customers bc
             JOIN bookings b ON bc.booking_id = b.id
             LEFT JOIN tours t ON b.tour_id = t.id
-            ORDER BY bc.id DESC";
+            ORDER BY bc.id DESC
+        ";
 
         $result = $this->conn->query($sql);
         if (!$result) {
@@ -44,10 +48,14 @@ class CustomerModel
         while ($row = $result->fetch_assoc()) {
             $rows[] = $row;
         }
+
         $result->free();
         return $rows;
     }
 
+    /* ===============================
+       CHI TIẾT KHÁCH
+    =============================== */
     public function getBookingCustomerById(int $id): ?array
     {
         $sql = "
@@ -58,12 +66,12 @@ class CustomerModel
                 b.end_date,
                 b.note,
                 b.status,
-                t.name   AS tour_name,
-                t.tour_id AS tour_code
+                t.name AS tour_name
             FROM booking_customers bc
             JOIN bookings b ON bc.booking_id = b.id
             LEFT JOIN tours t ON b.tour_id = t.id
-            WHERE bc.id = ?";
+            WHERE bc.id = ?
+        ";
 
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
@@ -79,6 +87,9 @@ class CustomerModel
         return $customer;
     }
 
+    /* ===============================
+       CẬP NHẬT KHÁCH
+    =============================== */
     public function updateBookingCustomer(int $id, array $data): bool
     {
         $customer = $this->getBookingCustomerById($id);
@@ -86,7 +97,10 @@ class CustomerModel
             return false;
         }
 
-        $sql = "UPDATE booking_customers SET name = ?, email = ?, phone = ?, type = ? WHERE id = ?";
+        $sql = "UPDATE booking_customers 
+                SET name = ?, email = ?, phone = ?, type = ?
+                WHERE id = ?";
+
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return false;
@@ -111,9 +125,14 @@ class CustomerModel
         return $ok;
     }
 
+    /* ===============================
+       XOÁ KHÁCH
+    =============================== */
     public function deleteBookingCustomer(int $id): bool
     {
-        $stmt = $this->conn->prepare('SELECT booking_id FROM booking_customers WHERE id = ?');
+        $stmt = $this->conn->prepare(
+            'SELECT booking_id FROM booking_customers WHERE id = ?'
+        );
         if (!$stmt) {
             return false;
         }
@@ -128,7 +147,9 @@ class CustomerModel
             return false;
         }
 
-        $deleteStmt = $this->conn->prepare('DELETE FROM booking_customers WHERE id = ?');
+        $deleteStmt = $this->conn->prepare(
+            'DELETE FROM booking_customers WHERE id = ?'
+        );
         if (!$deleteStmt) {
             return false;
         }
@@ -144,13 +165,36 @@ class CustomerModel
         return $ok;
     }
 
+    /* ===============================
+       HDV: ĐIỂM DANH
+    =============================== */
+    public function checkinCustomer(int $bcId): bool
+    {
+        $stmt = $this->conn->prepare(
+            "UPDATE booking_customers SET attended = 1 WHERE id = ?"
+        );
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param('i', $bcId);
+        $ok = $stmt->execute();
+        $stmt->close();
+
+        return $ok;
+    }
+
+    /* ===============================
+       ĐỒNG BỘ SỐ LƯỢNG
+    =============================== */
     private function syncBookingCounters(int $bookingId): void
     {
         $stmt = $this->conn->prepare(
             "SELECT 
                 SUM(CASE WHEN type = 'adult' THEN 1 ELSE 0 END) AS adult,
                 SUM(CASE WHEN type = 'child' THEN 1 ELSE 0 END) AS child
-             FROM booking_customers WHERE booking_id = ?"
+             FROM booking_customers
+             WHERE booking_id = ?"
         );
 
         if (!$stmt) {
@@ -166,7 +210,9 @@ class CustomerModel
         $adult = $adult ?? 0;
         $child = $child ?? 0;
 
-        $update = $this->conn->prepare('UPDATE bookings SET adult = ?, child = ? WHERE id = ?');
+        $update = $this->conn->prepare(
+            'UPDATE bookings SET adult = ?, child = ? WHERE id = ?'
+        );
         if (!$update) {
             return;
         }

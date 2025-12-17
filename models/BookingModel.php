@@ -88,7 +88,6 @@ class BookingModel
                  start_date, end_date, note, status)
                  VALUES (?,?,?,?,?,?,?,?, 'pending')"
             );
-
             $stmt->execute([
                 $booking['tour_id'],
                 $booking['booking_code'],
