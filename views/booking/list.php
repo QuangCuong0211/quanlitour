@@ -53,7 +53,7 @@ flash('error');
         .note-cell { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .badge.bg-primary { background: #3b82f6 !important; }
         .text-danger.fw-bold { color: #dc3545 !important; }
-    }
+    
     </style>
 </head>
 <body>
