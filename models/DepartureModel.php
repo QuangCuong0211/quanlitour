@@ -1,134 +1,167 @@
 <?php
 class DepartureModel
 {
-    public $conn;
+    private mysqli $conn;
 
     public function __construct()
     {
-        require_once __DIR__ . '/../commons/env.php';   
+        require_once __DIR__ . '/../commons/env.php';
 
-        $this->conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT);
+        $this->conn = new mysqli(
+            DB_HOST,
+            DB_USERNAME,
+            DB_PASSWORD,
+            DB_NAME,
+            DB_PORT
+        );
 
         if ($this->conn->connect_error) {
             die('Kết nối DB thất bại: ' . $this->conn->connect_error);
         }
+
+        $this->conn->set_charset('utf8mb4');
     }
 
-    // Lấy tất cả lịch khởi hành với thông tin tour
-    public function getAllDepartures()
+    // =============================
+    // LẤY DANH SÁCH LỊCH KHỞI HÀNH
+    // =============================
+    public function getAllDepartures(): array
     {
-        $sql = "SELECT d.*, t.name as tour_name, u.name as guide_name 
-                FROM departures d
-                LEFT JOIN tours t ON d.tour_id = t.id
-                LEFT JOIN users u ON d.guide_id = u.id
-                ORDER BY d.departure_date DESC";
-        $result = $this->conn->query($sql);
+        $sql = "
+            SELECT 
+                d.*,
+                t.name AS tour_name,
+                u.name AS guide_name
+            FROM departures d
+            LEFT JOIN tours t ON d.tour_id = t.id
+            LEFT JOIN users u ON d.guide_id = u.id
+            ORDER BY d.departure_date DESC
+        ";
 
+        $result = $this->conn->query($sql);
         $data = [];
-        if ($result && $result->num_rows > 0) {
+
+        if ($result) {
             while ($row = $result->fetch_assoc()) {
                 $data[] = $row;
             }
+            $result->free();
         }
 
         return $data;
     }
 
-    // Lấy lịch khởi hành theo id
-    public function getDepartureById($id)
+    // =============================
+    // LẤY 1 LỊCH KHỞI HÀNH
+    // =============================
+    public function getDepartureById(int $id): ?array
     {
-        $sql = "SELECT d.*, t.name as tour_name, u.name as guide_name 
-                FROM departures d
-                LEFT JOIN tours t ON d.tour_id = t.id
-                LEFT JOIN users u ON d.guide_id = u.id
-                WHERE d.id = ?";
+        $sql = "
+            SELECT 
+                d.*,
+                t.name AS tour_name,
+                u.name AS guide_name
+            FROM departures d
+            LEFT JOIN tours t ON d.tour_id = t.id
+            LEFT JOIN users u ON d.guide_id = u.id
+            WHERE d.id = ?
+        ";
+
         $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
+        if (!$stmt) return null;
 
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
-        $departure = $result->fetch_assoc();
+
+        $row = $result->fetch_assoc() ?: null;
         $stmt->close();
 
-        return $departure ?: false;
+        return $row;
     }
 
-    // Lấy danh sách tour
-    public function getTours()
-    {
-        $sql = "SELECT id, name FROM tours ORDER BY name ASC";
-        $result = $this->conn->query($sql);
+    // =============================
+    // THÊM LỊCH KHỞI HÀNH
+    // =============================
+    public function insertDeparture(
+        int $tour_id,
+        string $departure_date,
+        string $return_date,
+        int $guide_id,
+        int $seats_available,
+        string $status = 'active'
+    ): bool {
+        $sql = "
+            INSERT INTO departures 
+            (tour_id, departure_date, return_date, guide_id, seats_available, status)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ";
 
-        $data = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $data[] = $row;
-            }
-        }
-
-        return $data;
-    }
-
-    // Lấy danh sách hướng dẫn viên
-    public function getGuides()
-    {
-        $sql = "SELECT id, name FROM users WHERE role = 'hdv' ORDER BY name ASC";
-        $result = $this->conn->query($sql);
-
-        $data = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $data[] = $row;
-            }
-        }
-
-        return $data;
-    }
-
-    // Thêm lịch khởi hành
-    public function insertDeparture($tour_id, $departure_date, $return_date, $guide_id, $seats_available, $status = 'active')
-    {
-        $sql = "INSERT INTO departures (tour_id, departure_date, return_date, guide_id, seats_available, status) 
-                VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
+        if (!$stmt) return false;
 
-        $stmt->bind_param("isssii", $tour_id, $departure_date, $return_date, $guide_id, $seats_available, $status);
+        $stmt->bind_param(
+            "issiis",
+            $tour_id,
+            $departure_date,
+            $return_date,
+            $guide_id,
+            $seats_available,
+            $status
+        );
+
         $ok = $stmt->execute();
         $stmt->close();
 
         return $ok;
     }
 
-    // Cập nhật lịch khởi hành
-    public function updateDeparture($id, $tour_id, $departure_date, $return_date, $guide_id, $seats_available, $status = 'active')
-    {
-        $sql = "UPDATE departures SET tour_id = ?, departure_date = ?, return_date = ?, guide_id = ?, seats_available = ?, status = ? WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
+    // =============================
+    // CẬP NHẬT
+    // =============================
+    public function updateDeparture(
+        int $id,
+        int $tour_id,
+        string $departure_date,
+        string $return_date,
+        int $guide_id,
+        int $seats_available,
+        string $status
+    ): bool {
+        $sql = "
+            UPDATE departures 
+            SET tour_id = ?, departure_date = ?, return_date = ?, 
+                guide_id = ?, seats_available = ?, status = ?
+            WHERE id = ?
+        ";
 
-        $stmt->bind_param("isssii", $tour_id, $departure_date, $return_date, $guide_id, $seats_available, $status, $id);
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) return false;
+
+        $stmt->bind_param(
+            "ississi",
+            $tour_id,
+            $departure_date,
+            $return_date,
+            $guide_id,
+            $seats_available,
+            $status,
+            $id
+        );
+
         $ok = $stmt->execute();
         $stmt->close();
 
         return $ok;
     }
 
-    // Xóa lịch khởi hành
-    public function deleteDeparture($id)
+    // =============================
+    // XOÁ
+    // =============================
+    public function deleteDeparture(int $id): bool
     {
-        $sql = "DELETE FROM departures WHERE id = ?";
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
+        $stmt = $this->conn->prepare("DELETE FROM departures WHERE id = ?");
+        if (!$stmt) return false;
 
         $stmt->bind_param("i", $id);
         $ok = $stmt->execute();

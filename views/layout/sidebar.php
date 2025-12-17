@@ -22,5 +22,8 @@ $act = $_GET['act'] ?? '';
     <a class="menu-item <?= strpos($act,'booking') === 0 ? 'active' : '' ?>"
        href="?act=booking-list">Quản lý Booking</a>
         </a>
+    <a class="menu-item <?= strpos($act,'departure') === 0 ? 'active' : '' ?>"
+       href="?act=departure-list">Quản lý lịch khởi hành</a>
+        </a>
     </div>
 </div>
